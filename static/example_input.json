@@ -1,0 +1,29 @@
+{
+  "language": "Solidity",
+  "settings": {
+    "evmVersion": "istanbul",
+    "libraries": {},
+    "metadata": {
+      "bytecodeHash": "ipfs"
+    },
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "remappings": [],
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode"
+        ]
+      }
+    }
+  },
+  "sources": {
+    "contracts/new.sol": {
+      "keccak256": "0x4588e982488f3ad33380133705af77158bc1603edef4ed63472bb0fdfe5c8b5b",
+      "content": "pragma solidity ^0.8.0;\ncontract YourContract {\n    function foo() public pure returns (uint) {\n        return 42;\n    }\n}"
+    }
+  }
+}

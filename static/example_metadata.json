@@ -1,0 +1,32 @@
+{
+  "compiler": {
+    "version": "0.8.9+commit.e5eed63a"
+  },
+  "language": "Solidity",
+  "settings": {
+    "compilationTarget": {
+      "contracts/new.sol": "YourContract"
+    },
+    "evmVersion": "istanbul",
+    "libraries": {},
+    "metadata": {
+      "bytecodeHash": "ipfs"
+    },
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "remappings": []
+  },
+  "sources": {
+    "contracts/new.sol": {
+      "keccak256": "0x4588e982488f3ad33380133705af77158bc1603edef4ed63472bb0fdfe5c8b5b",
+      "content": "pragma solidity ^0.8.0;\ncontract YourContract {\n    function foo() public pure returns (uint) {\n        return 42;\n    }\n}",
+      "urls": [
+        "bzz-raw://c88f49b388be179db5b7f5997f61e66a0689f17502cf3df4c71130549d835409",
+        "dweb:/ipfs/QmXmPBXBFoG9gcUf3MHA7KmBdJS4AkHXeXVM6pHimbSozU"
+      ]
+    }
+  },
+  "version": 1
+}

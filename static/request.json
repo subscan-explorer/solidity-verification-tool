@@ -1,0 +1,6 @@
+{
+  "address": "0xc64fb3E5c09D6a3949f3094bb74A42D62A5AD6cf",
+  "metadata": "{\n  \"compiler\": {\n    \"version\": \"0.8.9+commit.e5eed63a\"\n  },\n  \"language\": \"Solidity\",\n  \"settings\": {\n    \"compilationTarget\": {\n      \"contracts/new.sol\": \"YourContract\"\n    },\n    \"evmVersion\": \"istanbul\",\n    \"libraries\": {},\n    \"metadata\": {\n      \"bytecodeHash\": \"ipfs\"\n    },\n    \"optimizer\": {\n      \"enabled\": true,\n      \"runs\": 200\n    },\n    \"remappings\": []\n  },\n  \"sources\": {\n    \"contracts/new.sol\": {\n      \"keccak256\": \"0x4588e982488f3ad33380133705af77158bc1603edef4ed63472bb0fdfe5c8b5b\",\n      \"content\": \"pragma solidity ^0.8.0;\\ncontract YourContract {\\n    function foo() public pure returns (uint) {\\n        return 42;\\n    }\\n}\",\n      \"urls\": [\n        \"bzz-raw://c88f49b388be179db5b7f5997f61e66a0689f17502cf3df4c71130549d835409\",\n        \"dweb:/ipfs/QmXmPBXBFoG9gcUf3MHA7KmBdJS4AkHXeXVM6pHimbSozU\"\n      ]\n    }\n  },\n  \"version\": 1\n}",
+  "chain": 46,
+  "compilerVersion": "v0.8.9+commit.e5eed63a"
+}
