@@ -88,7 +88,7 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(VerificationResponse{
+	_ = json.NewEncoder(w).Encode(VerificationResponse{
 		Verified: verified.Status != mismatch,
 		Message:  "Verification completed",
 	})
@@ -97,7 +97,7 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 func respondError(w http.ResponseWriter, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(VerificationResponse{
+	_ = json.NewEncoder(w).Encode(VerificationResponse{
 		Verified: false,
 		Message:  err.Error(),
 	})

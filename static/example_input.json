@@ -15,7 +15,8 @@
       "*": {
         "*": [
           "abi",
-          "evm.bytecode"
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object"
         ]
       }
     }

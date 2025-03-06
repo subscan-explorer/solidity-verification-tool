@@ -136,6 +136,9 @@ func Test_Metadata(t *testing.T) {
 	}
 	defer file.Close()
 	data, err := io.ReadAll(file)
+	if err != nil {
+		t.Error(err)
+	}
 	var metadata SolcMetadata
 	err = json.Unmarshal(data, &metadata)
 	if err != nil {

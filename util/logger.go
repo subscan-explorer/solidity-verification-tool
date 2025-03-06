@@ -30,7 +30,7 @@ func NewLogger() *MLogger {
 }
 
 func (l *MLogger) logWithCallerDepth(logger *log.Logger, calldepth int, msg string) {
-	logger.Output(calldepth, msg)
+	_ = logger.Output(calldepth, msg)
 }
 
 func (l *MLogger) Info(msg string) {

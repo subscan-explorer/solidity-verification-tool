@@ -26,7 +26,7 @@ func (s *SolcMetadata) format() {
 	s.Compiler = nil
 	s.Version = nil
 	s.Settings.CompilationTarget = nil
-	s.Settings.OutputSelection = map[string]map[string]interface{}{"*": {"*": []string{"abi", "evm.bytecode"}}}
+	s.Settings.OutputSelection = map[string]map[string]interface{}{"*": {"*": []string{"abi", "evm.bytecode.object", "evm.deployedBytecode.object"}}}
 }
 
 func (s *SolcMetadata) PickComplicationTarget() (string, string) {
@@ -84,9 +84,22 @@ type SolcOutput struct {
 		} `json:"sourceLocation"`
 		Type string `json:"type"`
 	} `json:"errors"`
+	ContractName  string
+	CompileTarget string
 }
 
 func (o *SolcOutput) PickDeployedBytesCode(compileTarget, contractName string) string {
+	if compileTarget == "" {
+		for target := range o.Contracts {
+			for name := range o.Contracts[target] {
+				return o.Contracts[target][name].Evm.DeployedBytecode.Object
+			}
+		}
+	}
+	return o.Contracts[compileTarget][contractName].Evm.DeployedBytecode.Object
+}
+
+func (o *SolcOutput) PickBytesCode(compileTarget, contractName string) string {
 	if compileTarget == "" {
 		for target := range o.Contracts {
 			for name := range o.Contracts[target] {
@@ -111,9 +124,11 @@ type SolcContract struct {
 	} `json:"abi"`
 	Evm struct {
 		Bytecode struct {
-			Object  string `json:"object"`
-			Opcodes string `json:"opcodes"`
+			Object string `json:"object"`
 		} `json:"bytecode"`
+		DeployedBytecode struct {
+			Object string `json:"object"`
+		}
 	} `json:"evm"`
 	Metadata string `json:"metadata"`
 }
@@ -150,7 +165,7 @@ func recompileContract(_ context.Context, metadata *SolcMetadata, version string
 	if err = json.Unmarshal(stdoutBuf.Bytes(), &result); err != nil {
 		return nil, err
 	}
-
+	result.CompileTarget, result.ContractName = metadata.PickComplicationTarget()
 	return &result, nil
 }
 
