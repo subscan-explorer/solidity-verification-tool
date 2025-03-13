@@ -159,3 +159,40 @@ func Test_Metadata(t *testing.T) {
 	}
 
 }
+
+func Test_MultifileCompile(t *testing.T) {
+	file, err := os.Open("static/ORMP_metadata.json")
+	if err != nil {
+		t.Error(err)
+	}
+	defer file.Close()
+	data, err := io.ReadAll(file)
+	if err != nil {
+		t.Error(err)
+	}
+	var metadata SolcMetadata
+	err = json.Unmarshal(data, &metadata)
+	if err != nil {
+		t.Errorf("json unmarshal fail: %v", err)
+	}
+
+	target, contractName := metadata.PickComplicationTarget()
+	if target != "src/ORMP.sol" || contractName != "ORMP" {
+		t.Errorf("target %s, contractName %s not match", target, contractName)
+	}
+	//
+	metadata.format()
+
+	sm := NewSolcManager()
+	// Test EnsureVersion with a non-existent version
+	solcVersion := "v0.8.17+commit.8df45f5f"
+	_ = sm.EnsureVersion(solcVersion)
+
+	output, err := recompileContract(context.Background(), &metadata, solcVersion)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(output.Contracts) == 0 {
+		t.Errorf("no contracts compiled")
+	}
+}

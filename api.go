@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"verify-golang/util"
 )
 
@@ -28,8 +29,10 @@ type VerificationRequest struct {
 }
 
 type VerificationResponse struct {
-	Verified bool   `json:"verified"`
-	Message  string `json:"message"`
+	VerifiedStatus         string        `json:"verified_status"`
+	Message                string        `json:"message"`
+	Abi                    []interface{} `json:"abi,omitempty"`
+	CreationBytecodeLength int           `json:"creation_bytecode_length"`
 }
 
 // https://ardislu.dev/solc-standard-json-input-from-metadata
@@ -48,9 +51,12 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !strings.HasPrefix(req.CompilerVersion, "v") {
+		req.CompilerVersion = "v" + req.CompilerVersion
+	}
+
 	ctx := r.Context()
-	sm := NewSolcManager()
-	if err := sm.EnsureVersion(req.CompilerVersion); err != nil {
+	if err := SolcManagerInstance.EnsureVersion(req.CompilerVersion); err != nil {
 		respondError(w, err)
 		return
 	}
@@ -86,19 +92,17 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(VerificationResponse{
-		Verified: verified.Status != mismatch,
-		Message:  "Verification completed",
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(VerificationResponse{VerifiedStatus: verified.Status,
+		Message:                "ok",
+		Abi:                    compiledOutput.Contracts[compiledOutput.CompileTarget][compiledOutput.ContractName].Abi,
+		CreationBytecodeLength: len(compiledOutput.Contracts[compiledOutput.CompileTarget][compiledOutput.ContractName].Evm.Bytecode.Object),
 	})
 }
 
 func respondError(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusInternalServerError)
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(VerificationResponse{
-		Verified: false,
-		Message:  err.Error(),
-	})
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(VerificationResponse{VerifiedStatus: mismatch, Message: err.Error()})
 }

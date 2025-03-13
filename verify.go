@@ -85,30 +85,33 @@ type Match struct {
 	ConstructorArgs string
 }
 
-func (v *VerificationRequest) compareBytecodes(ctx context.Context, deployedBytecode string, compiledOutput *SolcOutput) (*Match, error) {
-	// add library Address
-	withLibraries := addLibraryAddresses(compiledOutput.PickDeployedBytesCode("", ""), deployedBytecode).Replaced
-	if util.TrimHex(withLibraries) == util.TrimHex(deployedBytecode) {
+func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecode string, compiledOutput *SolcOutput) (*Match, error) {
+	recompileDeployCodeWithLibraries := addLibraryAddresses(compiledOutput.PickDeployedBytesCode(compiledOutput.CompileTarget, compiledOutput.ContractName), chainBytecode).Replaced
+	if util.TrimHex(recompileDeployCodeWithLibraries) == util.TrimHex(chainBytecode) {
 		return &Match{Status: perfect}, nil
 	}
 
-	trimmedChainBytecode := util.TrimHex(BytecodeWithoutMetadata(deployedBytecode))
-	trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(withLibraries))
+	// util.Logger().Debug(fmt.Sprintf("deployedBytecode: %s", chainBytecode))
+	// util.Logger().Debug(fmt.Sprintf("withLibraries: %s", recompileDeployCodeWithLibraries))
+	trimmedChainBytecode := util.TrimHex(BytecodeWithoutMetadata(chainBytecode))
+	trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(recompileDeployCodeWithLibraries))
 	if trimmedChainBytecode == util.TrimHex(trimmedWithLibraries) {
 		return &Match{Status: partial}, nil
 	}
 
 	if len(trimmedChainBytecode) == len(trimmedWithLibraries) {
+		// util.Logger().Debug("start compare create bytecode")
 		createData, err := fetchCreateBytecode(ctx, v.Address, v.Chain)
+		// util.Logger().Debug(fmt.Sprintf("query createData from subscan: %s ", createData))
 		if err != nil {
 			return &Match{Status: mismatch}, err
 		}
 
 		createData = util.TrimHex(createData)
 		if len(createData) > 0 {
-			withLibraries = addLibraryAddresses(compiledOutput.PickBytesCode("", ""), createData).Replaced
-			encodedConstructorArgs := extractEncodedConstructorArgs(createData, withLibraries)
-			if strings.HasPrefix(createData, withLibraries) {
+			recompileBytesCodeWithLibraries := addLibraryAddresses(compiledOutput.PickBytesCode(compiledOutput.CompileTarget, compiledOutput.ContractName), createData).Replaced
+			encodedConstructorArgs := extractEncodedConstructorArgs(createData, recompileBytesCodeWithLibraries)
+			if strings.HasPrefix(createData, BytecodeWithoutMetadata(recompileBytesCodeWithLibraries)) {
 				return &Match{Status: perfect, ConstructorArgs: encodedConstructorArgs}, nil
 			}
 		}

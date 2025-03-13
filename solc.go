@@ -16,13 +16,17 @@ type SolcManager struct {
 	cacheDir string
 }
 
+var SolcManagerInstance *SolcManager
+
+const staticDirName = "static"
+
 func NewSolcManager() *SolcManager {
 	// current code dir
 	dir, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
-	staticDir := filepath.Join(dir, "static")
+	staticDir := filepath.Join(dir, staticDirName)
 	return &SolcManager{cacheDir: staticDir}
 }
 

@@ -111,17 +111,7 @@ func (o *SolcOutput) PickBytesCode(compileTarget, contractName string) string {
 }
 
 type SolcContract struct {
-	Abi []struct {
-		Inputs  []interface{} `json:"inputs"`
-		Name    string        `json:"name"`
-		Outputs []struct {
-			InternalType string `json:"internalType"`
-			Name         string `json:"name"`
-			Type         string `json:"type"`
-		} `json:"outputs"`
-		StateMutability string `json:"stateMutability"`
-		Type            string `json:"type"`
-	} `json:"abi"`
+	Abi []interface{} `json:"abi"`
 	Evm struct {
 		Bytecode struct {
 			Object string `json:"object"`
@@ -134,15 +124,15 @@ type SolcContract struct {
 }
 
 func recompileContract(_ context.Context, metadata *SolcMetadata, version string) (*SolcOutput, error) {
-	sm := NewSolcManager()
-	solcPath := filepath.Join(sm.cacheDir, version)
+	solcPath := filepath.Join(SolcManagerInstance.cacheDir, version)
 
 	cmd := exec.Command(solcPath, "--standard-json")
 
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
-
+	var result SolcOutput
+	result.CompileTarget, result.ContractName = metadata.PickComplicationTarget()
 	stdinPipe, err := cmd.StdinPipe()
 	if err != nil {
 		return nil, fmt.Errorf("create pipe fail: %v", err)
@@ -161,11 +151,9 @@ func recompileContract(_ context.Context, metadata *SolcMetadata, version string
 		return nil, err
 	}
 
-	var result SolcOutput
 	if err = json.Unmarshal(stdoutBuf.Bytes(), &result); err != nil {
 		return nil, err
 	}
-	result.CompileTarget, result.ContractName = metadata.PickComplicationTarget()
 	return &result, nil
 }
 

@@ -19,6 +19,7 @@ type MLogger struct {
 	infoLogger    *log.Logger
 	warningLogger *log.Logger
 	errorLogger   *log.Logger
+	debugLogger   *log.Logger
 }
 
 func NewLogger() *MLogger {
@@ -26,6 +27,7 @@ func NewLogger() *MLogger {
 		infoLogger:    log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile),
 		warningLogger: log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Llongfile),
 		errorLogger:   log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime|log.Llongfile),
+		debugLogger:   log.New(os.Stdout, "DEBUG: ", log.Ldate|log.Ltime|log.Llongfile),
 	}
 }
 
@@ -43,4 +45,8 @@ func (l *MLogger) Warning(msg string) {
 
 func (l *MLogger) Error(msg string) {
 	l.logWithCallerDepth(l.errorLogger, 3, msg)
+}
+
+func (l *MLogger) Debug(msg string) {
+	l.logWithCallerDepth(l.debugLogger, 3, msg)
 }
