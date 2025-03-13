@@ -1,11 +1,7 @@
-FROM golang:1.22-alpine
-
-ENV CONF_DIR=/configs
+FROM alpine:3
 
 WORKDIR /app
 
-COPY . .
+COPY ./verification verification
 
-RUN go build -o verification
-
-ENTRYPOINT ["./verification"]
+ENTRYPOINT ["/app/verification"]
