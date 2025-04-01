@@ -43,8 +43,11 @@ func (l *MLogger) Warning(msg string) {
 	l.logWithCallerDepth(l.warningLogger, 3, msg)
 }
 
-func (l *MLogger) Error(msg string) {
-	l.logWithCallerDepth(l.errorLogger, 3, msg)
+func (l *MLogger) Error(err error) {
+	if err == nil {
+		return
+	}
+	l.logWithCallerDepth(l.errorLogger, 3, err.Error())
 }
 
 func (l *MLogger) Debug(msg string) {

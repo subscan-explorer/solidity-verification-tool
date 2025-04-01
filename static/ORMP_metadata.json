@@ -5,28 +5,20 @@
   "language": "Solidity",
   "settings": {
     "metadata": {
-      "bytecodeHash": "ipfs",
+      "bytecodeHash": "none",
       "useLiteralContent": false
     },
     "optimizer": {
       "runs": 999999,
       "enabled": true
     },
-    "evmVersion": "london",
+    "evmVersion": "istanbul",
     "outputSelection": {
       "*": {
-        "": [
-          "ast"
-        ],
         "*": [
           "abi",
           "evm.bytecode",
-          "evm.deployedBytecode",
-          "evm.methodIdentifiers",
-          "metadata",
-          "storageLayout",
-          "devdoc",
-          "userdoc"
+          "evm.deployedBytecode"
         ]
       }
     },

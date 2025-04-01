@@ -1,0 +1,203 @@
+{
+  "contracts": {
+    "contracts/new.sol": {
+      "YourContract": {
+        "abi": [
+          {
+            "inputs": [],
+            "name": "foo",
+            "outputs": [
+              {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+              }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+          }
+        ],
+        "metadata": {
+          "optimizer_settings": {
+            "is_debug_logging_enabled": false,
+            "is_fallback_to_size_enabled": false,
+            "is_verify_each_enabled": false,
+            "level_back_end": "Aggressive",
+            "level_middle_end": "Aggressive",
+            "level_middle_end_size": "Zero"
+          },
+          "revive_pallet_version": null,
+          "revive_version": "0.1.0-dev.12+commit.497dae2.llvm-18.1.8",
+          "solc_metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"foo\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/new.sol\":\"YourContract\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"none\"},\"optimizer\":{\"details\":{\"constantOptimizer\":false,\"cse\":false,\"deduplicate\":false,\"inliner\":false,\"jumpdestRemover\":false,\"orderLiterals\":false,\"peephole\":false,\"yul\":true,\"yulDetails\":{\"optimizerSteps\":\"dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul [j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTFOtfDnca[r]Iulc]jmul[jul] VcTOcul jmul\",\"stackAllocation\":true}},\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/new.sol\":{\"keccak256\":\"0x4588e982488f3ad33380133705af77158bc1603edef4ed63472bb0fdfe5c8b5b\",\"urls\":[\"bzz-raw://c88f49b388be179db5b7f5997f61e66a0689f17502cf3df4c71130549d835409\",\"dweb:/ipfs/QmXmPBXBFoG9gcUf3MHA7KmBdJS4AkHXeXVM6pHimbSozU\"]}},\"version\":1}",
+          "solc_version": "0.8.17+commit.8df45f5f.Darwin.appleclang"
+        },
+        "evm": {
+          "assembly": "// RO data = 0/0 bytes\n// RW data = 0/65552 bytes\n// Stack size = 16384 bytes\n\n// Instructions = 306\n// Code size = 901 bytes\n\n      : @0 (gas: 2)\n     0: i32 a2 = a0 >> 0x10\n     3: jump @6 if a2 != 0\n      : @1 (gas: 2)\n     6: a2 = 0x10001\n    11: jump @6 if a1 >=u a2\n      : @2 (gas: 4)\n    14: a1 = a1 + a0\n    17: i32 a1 = a1 + 0x1f\n    20: a1 = a1 & 0xffffffffffffffe0\n    23: jump @7 if a1 >=u 65537\n      : @3 (gas: 2)\n    29: a3 = i32 [0x20000]\n    34: jump @5 if a3 >=u a1\n      : @4 (gas: 4)\n    37: u32 [0x20000] = a1\n    42: a1 = 0x20010\n    47: a0 = a0 + a1\n    50: ret\n      : @5 (gas: 3)\n    52: a1 = 0x20010\n    57: a0 = a0 + a1\n    60: ret\n      : @6 (gas: 1)\n    62: trap\n      : @7 (gas: 1)\n    63: trap\n      : @8 [@dyn 1] (gas: 71)\n    64: a1 = reverse s1\n    66: a2 = reverse s0\n    68: a3 = u64 [sp]\n    70: a3 = reverse a3\n    72: a4 = u64 [sp + 0x8]\n    75: a4 = reverse a4\n    77: u8 [a0 + 0x18] = a4\n    80: u8 [a0 + 0x10] = a3\n    83: u8 [a0 + 0x8] = a2\n    86: u8 [a0] = a1\n    88: a5 = a4 >> 0x38\n    91: u8 [a0 + 0x1f] = a5\n    94: a5 = a4 >> 0x30\n    97: u8 [a0 + 0x1e] = a5\n   100: a5 = a4 >> 0x28\n   103: u8 [a0 + 0x1d] = a5\n   106: a5 = a4 >> 0x20\n   109: u8 [a0 + 0x1c] = a5\n   112: a5 = a4 >> 0x18\n   115: u8 [a0 + 0x1b] = a5\n   118: a5 = a4 >> 0x10\n   121: u8 [a0 + 0x1a] = a5\n   124: a4 = a4 >> 0x8\n   127: u8 [a0 + 0x19] = a4\n   130: a4 = a3 >> 0x38\n   133: u8 [a0 + 0x17] = a4\n   136: a4 = a3 >> 0x30\n   139: u8 [a0 + 0x16] = a4\n   142: a4 = a3 >> 0x28\n   145: u8 [a0 + 0x15] = a4\n   148: a4 = a3 >> 0x20\n   151: u8 [a0 + 0x14] = a4\n   154: a4 = a3 >> 0x18\n   157: u8 [a0 + 0x13] = a4\n   160: a4 = a3 >> 0x10\n   163: u8 [a0 + 0x12] = a4\n   166: a3 = a3 >> 0x8\n   169: u8 [a0 + 0x11] = a3\n   172: a3 = a2 >> 0x38\n   175: u8 [a0 + 0xf] = a3\n   178: a3 = a2 >> 0x30\n   181: u8 [a0 + 0xe] = a3\n   184: a3 = a2 >> 0x28\n   187: u8 [a0 + 0xd] = a3\n   190: a3 = a2 >> 0x20\n   193: u8 [a0 + 0xc] = a3\n   196: a3 = a2 >> 0x18\n   199: u8 [a0 + 0xb] = a3\n   202: a3 = a2 >> 0x10\n   205: u8 [a0 + 0xa] = a3\n   208: a2 = a2 >> 0x8\n   211: u8 [a0 + 0x9] = a2\n   214: a2 = a1 >> 0x38\n   217: u8 [a0 + 0x7] = a2\n   220: a2 = a1 >> 0x30\n   223: u8 [a0 + 0x6] = a2\n   226: a2 = a1 >> 0x28\n   229: u8 [a0 + 0x5] = a2\n   232: a2 = a1 >> 0x20\n   235: u8 [a0 + 0x4] = a2\n   238: a2 = a1 >> 0x18\n   241: u8 [a0 + 0x3] = a2\n   244: a2 = a1 >> 0x10\n   247: u8 [a0 + 0x2] = a2\n   250: a1 = a1 >> 0x8\n   253: u8 [a0 + 0x1] = a1\n   256: ra = u64 [sp + 0x20]\n   259: s0 = u64 [sp + 0x18]\n   262: s1 = u64 [sp + 0x10]\n   265: sp = sp + 0x28\n   268: ret\n      : @9 (gas: 6)\n   270: sp = sp + 0xfffffffffffffff0\n   273: u64 [sp + 0x8] = ra\n   276: u64 [sp] = s0\n   278: s0 = a0 & 0x1\n   281: ecalli 2 // 'call_data_size'\n   283: fallthrough\n      : @10 (gas: 2)\n   284: u32 [0x20004] = a0\n   289: jump @12 if s0 == 0\n      : @11 (gas: 1)\n   292: ra = 4, jump @13\n      : @12 [@dyn 2] (gas: 1)\n   296: ra = 6, jump @24\n      : @13 [@dyn 3] (gas: 8)\n   301: sp = sp + 0xffffffffffffffc0\n   304: u64 [sp + 0x38] = ra\n   307: u64 [sp + 0x30] = s0\n   310: s0 = sp + 0x40\n   313: sp = sp & 0xffffffffffffffe0\n   316: a0 = 0x40\n   319: a1 = 0x20\n   322: ra = 8, jump @0\n      : @14 [@dyn 4] (gas: 39)\n   327: u8 [a0 + 31] = 0x80\n   332: u8 [a0 + 30] = 0\n   335: u8 [a0 + 29] = 0\n   338: u8 [a0 + 28] = 0\n   341: u8 [a0 + 27] = 0\n   344: u8 [a0 + 26] = 0\n   347: u8 [a0 + 25] = 0\n   350: u8 [a0 + 24] = 0\n   353: u8 [a0 + 23] = 0\n   356: u8 [a0 + 22] = 0\n   359: u8 [a0 + 21] = 0\n   362: u8 [a0 + 20] = 0\n   365: u8 [a0 + 19] = 0\n   368: u8 [a0 + 18] = 0\n   371: u8 [a0 + 17] = 0\n   374: u8 [a0 + 16] = 0\n   377: u8 [a0 + 15] = 0\n   380: u8 [a0 + 14] = 0\n   383: u8 [a0 + 13] = 0\n   386: u8 [a0 + 12] = 0\n   389: u8 [a0 + 11] = 0\n   392: u8 [a0 + 10] = 0\n   395: u8 [a0 + 9] = 0\n   398: u8 [a0 + 8] = 0\n   401: u8 [a0 + 7] = 0\n   404: u8 [a0 + 6] = 0\n   407: u8 [a0 + 5] = 0\n   410: u8 [a0 + 4] = 0\n   413: u8 [a0 + 3] = 0\n   416: u8 [a0 + 2] = 0\n   419: u8 [a0 + 1] = 0\n   422: u8 [a0 + 0] = 0\n   424: u64 [sp + 24] = 0\n   427: u64 [sp + 0] = 0\n   429: u64 [sp + 8] = 0\n   432: u64 [sp + 16] = 0\n   435: i32 a0 = sp + 0\n   437: ecalli 5 // 'value_transferred'\n   439: fallthrough\n      : @15 (gas: 8)\n   440: a0 = u64 [sp + 0x10]\n   443: a1 = u64 [sp + 0x18]\n   446: a2 = u64 [sp + 0x8]\n   449: a3 = u64 [sp]\n   451: a1 = a1 | a2\n   454: a0 = a0 | a3\n   457: a0 = a0 | a1\n   460: jump @18 if a0 == 0\n      : @16 (gas: 3)\n   463: a0 = 0\n   465: a1 = 0\n   467: ra = 10, jump @0\n      : @17 [@dyn 5] (gas: 5)\n   472: i32 a1 = a0 + 0\n   474: a0 = 0x1\n   477: a2 = 0\n   479: ecalli 3 // 'seal_return'\n   481: fallthrough\n      : @18 (gas: 3)\n   482: a0 = 0x80\n   486: a1 = 0\n   488: ra = 12, jump @0\n      : @19 [@dyn 6] (gas: 5)\n   493: i32 a0 = a0 + 0\n   495: a1 = 0\n   497: a2 = 0\n   499: ecalli 0 // 'call_data_copy'\n   500: fallthrough\n      : @20 (gas: 2)\n   501: a1 = i32 [0x20008]\n   506: jump @22 if a1 == 0\n      : @21 (gas: 4)\n   509: a0 = 0x30010\n   514: i32 a0 = a0 + 0\n   516: ecalli 4 // 'set_immutable_data'\n   518: fallthrough\n      : @22 (gas: 3)\n   519: a0 = 0x80\n   523: a1 = 0\n   525: ra = 14, jump @0\n      : @23 [@dyn 7] (gas: 6)\n   530: i32 a1 = a0 + 0\n   532: a0 = 0\n   534: a2 = 0\n   536: ra = 0x10\n   539: ecalli 3 // 'seal_return'\n   541: fallthrough\n      : @24 [@dyn 8] (gas: 10)\n   542: sp = sp + 0xffffffffffffff80\n   545: u64 [sp + 0x78] = ra\n   548: u64 [sp + 0x70] = s0\n   551: u64 [sp + 0x68] = s1\n   554: s0 = sp + 0x80\n   558: sp = sp & 0xffffffffffffffe0\n   561: s1 = sp\n   563: a0 = 0x40\n   566: a1 = 0x20\n   569: ra = 18, jump @0\n      : @25 [@dyn 9] (gas: 36)\n   574: u8 [a0 + 31] = 0x80\n   579: u8 [a0 + 30] = 0\n   582: u8 [a0 + 29] = 0\n   585: u8 [a0 + 28] = 0\n   588: u8 [a0 + 27] = 0\n   591: u8 [a0 + 26] = 0\n   594: u8 [a0 + 25] = 0\n   597: u8 [a0 + 24] = 0\n   600: u8 [a0 + 23] = 0\n   603: u8 [a0 + 22] = 0\n   606: u8 [a0 + 21] = 0\n   609: u8 [a0 + 20] = 0\n   612: u8 [a0 + 19] = 0\n   615: u8 [a0 + 18] = 0\n   618: u8 [a0 + 17] = 0\n   621: u8 [a0 + 16] = 0\n   624: u8 [a0 + 15] = 0\n   627: u8 [a0 + 14] = 0\n   630: u8 [a0 + 13] = 0\n   633: u8 [a0 + 12] = 0\n   636: u8 [a0 + 11] = 0\n   639: u8 [a0 + 10] = 0\n   642: u8 [a0 + 9] = 0\n   645: u8 [a0 + 8] = 0\n   648: u8 [a0 + 7] = 0\n   651: u8 [a0 + 3] = 0\n   654: a1 = 0x20004\n   659: u8 [a0 + 2] = 0\n   662: u8 [a0 + 1] = 0\n   665: u8 [a0 + 0] = 0\n   667: u64 [s1 + 0x18] = a1\n   670: a1 = i32 [0x20004]\n   675: u8 [a0 + 6] = 0\n   678: u8 [a0 + 5] = 0\n   681: u8 [a0 + 4] = 0\n   684: jump @31 if a1 <u 4\n      : @26 (gas: 4)\n   688: i32 a0 = s1 + 0x40\n   691: a1 = 0\n   693: ecalli 1 // 'call_data_load'\n   695: fallthrough\n      : @27 (gas: 4)\n   696: a0 = u32 [s1 + 0x5c]\n   699: a0 = a0 << 0x20\n   702: a1 = 0xc298557800000000\n   712: jump @31 if a0 != a1\n      : @28 (gas: 11)\n   715: a0 = sp + 0xffffffffffffffe0\n   718: a0 = a0 & 0xffffffffffffffe0\n   721: u64 [s1 + 0x10] = a0\n   724: sp = a0\n   726: u64 [a0 + 24] = 0\n   729: u64 [a0 + 16] = 0\n   732: u64 [a0 + 8] = 0\n   735: u64 [a0 + 0] = 0\n   737: i32 a0 = a0 + 0\n   739: ecalli 5 // 'value_transferred'\n   741: fallthrough\n      : @29 (gas: 9)\n   742: a3 = u64 [s1 + 0x10]\n   745: a0 = u64 [a3 + 0x10]\n   748: a1 = u64 [a3 + 0x18]\n   751: a2 = u64 [a3 + 0x8]\n   754: a3 = u64 [a3]\n   756: a1 = a1 | a2\n   759: a0 = a0 | a3\n   762: a0 = a0 | a1\n   765: jump @31 if a0 != 0\n      : @30 (gas: 3)\n   768: a0 = u64 [s1 + 0x18]\n   771: a0 = i32 [a0]\n   773: jump @33 if a0 >u 3\n      : @31 (gas: 3)\n   777: a0 = 0\n   779: a1 = 0\n   781: ra = 20, jump @0\n      : @32 [@dyn 10] (gas: 5)\n   786: i32 a1 = a0 + 0\n   788: a0 = 0x1\n   791: a2 = 0\n   793: ecalli 3 // 'seal_return'\n   795: fallthrough\n      : @33 (gas: 20)\n   796: u64 [s1 + 56] = 0\n   799: u64 [s1 + 48] = 0\n   802: u64 [s1 + 32] = 0x2a\n   806: a1 = s1 + 0x20\n   809: u64 [s1 + 40] = 0\n   812: ra = 0x16\n   815: sp = sp + 0xffffffffffffffd8\n   818: u64 [sp + 0x20] = ra\n   821: u64 [sp + 0x18] = s0\n   824: u64 [sp + 0x10] = s1\n   827: a2 = u64 [a1]\n   829: u64 [sp + 0x8] = a2\n   832: a2 = u64 [a1 + 0x8]\n   835: u64 [sp] = a2\n   837: s0 = u64 [a1 + 0x10]\n   840: s1 = u64 [a1 + 0x18]\n   843: a0 = 0x80\n   847: a1 = 0x20\n   850: ra = 0x2\n   853: jump @0\n      : @34 [@dyn 11] (gas: 3)\n   856: a0 = 0x80\n   860: a1 = 0x20\n   863: ra = 24, jump @0\n      : @35 [@dyn 12] (gas: 7)\n   868: i32 a1 = a0 + 0\n   870: a2 = 0x20\n   873: a0 = 0\n   875: ecalli 3 // 'seal_return'\n   877: a0 = 0\n   879: ra = 0x1a\n   882: jump @9\n      : @36 [export #0: 'call'] (gas: 2)\n   885: a0 = 0\n   887: ra = 26, jump @9\n      : @37 [@dyn 13] [export #1: 'deploy'] (gas: 2)\n   892: a0 = 0x1\n   895: ra = 28, jump @9\n      : @38 [@dyn 14] (gas: 1)\n   900: trap\n",
+          "bytecode": {
+            "object": "50564d0000b604000000000000010700c11000c00040047106000000000e0000001c0000002a000000350000004700000063616c6c5f646174615f636f707963616c6c5f646174615f6c6f616463616c6c5f646174615f73697a657365616c5f72657475726e7365745f696d6d757461626c655f6461746176616c75655f7472616e7366657272656405110283750463616c6c837c066465706c6f790684160e028385400028012d014701d801ed0112021e023e021203580364037c0384038b791052093b3309010001ae9833c8780883881f8488e0553801000128390a000002ae8a123d080000023308100002c8870732003308100002c88707320000006f686f59821a6faa821b086fbb787b18787a10787908787898bc38787c1f98bc30787c1e98bc28787c1d98bc20787c1c98bc18787c1b98bc10787c1a98bb08787b1998ab38787b1798ab30787b1698ab28787b1598ab20787b1498ab18787b1398ab10787b1298aa08787a11989a38787a0f989a30787a0e989a28787a0d989a20787a0c989a18787a0b989a10787a0a98990878790998893878790798893078790698892878790598892078790498891878790398891078790298880878780182102082151882161095112832009511f07b10087b158475010a02013d0704000251050750100409501006f6009511c07b10387b15309515408411e0330740330820501008befe46171f800046171e46171d46171c46171b46171a46171946171846171746171646171546171446171346171246171146171046170f46170e46170d46170c46170b46170a4617094617084617074617064617054617044617034617024617014607491118490149110849111083170a0501821710821818821908821ad49808d4a707d487075107163307330850100a2dfe837833070133090a030133078000330850100c18fe8377330833090a01390808000251080d330710000383770a040133078000330850100ef3fd8378330733093300100a03019511807b10787b15707b1668951580008411e06416330740330820501012c7fd46171f800046171e46171d46171c46171b46171a46171946171846171746171646171546171446171346171246171146171046170f46170e46170d46170c46170b46170a461709461708461707461703330804000246170246170146077b681839080400024617064617054617045318045d83674033080a010180675c977720140800000000785598c2ab87419517e08477e07b67106471491718491710491708490783770a0501826a1082a71082a81882a90882aad49808d4a707d4870752070c82671881775617031733073308501014f3fc837833070133090a03014916384916304916202a9568204916283300169511d87b10207b15187b161082897b19088289087b198285108286183307800033082033000228abfc33078000330820501018a1fc837833092033070a03330733001a289cfd330750101a97fd33070150101c8ffd0049489220248414d25529494992244992244992244992244992244992244992244952521a122149928490244992244992244992244929a9494a920aa546a13a24d428546992444a4248922449922449922449484a4812a949004952926a929424292a949a449224292989249150aaa4901000"
+          },
+          "deployedBytecode": {
+            "object": "50564d0000b604000000000000010700c11000c00040047106000000000e0000001c0000002a000000350000004700000063616c6c5f646174615f636f707963616c6c5f646174615f6c6f616463616c6c5f646174615f73697a657365616c5f72657475726e7365745f696d6d757461626c655f6461746176616c75655f7472616e7366657272656405110283750463616c6c837c066465706c6f790684160e028385400028012d014701d801ed0112021e023e021203580364037c0384038b791052093b3309010001ae9833c8780883881f8488e0553801000128390a000002ae8a123d080000023308100002c8870732003308100002c88707320000006f686f59821a6faa821b086fbb787b18787a10787908787898bc38787c1f98bc30787c1e98bc28787c1d98bc20787c1c98bc18787c1b98bc10787c1a98bb08787b1998ab38787b1798ab30787b1698ab28787b1598ab20787b1498ab18787b1398ab10787b1298aa08787a11989a38787a0f989a30787a0e989a28787a0d989a20787a0c989a18787a0b989a10787a0a98990878790998893878790798893078790698892878790598892078790498891878790398891078790298880878780182102082151882161095112832009511f07b10087b158475010a02013d0704000251050750100409501006f6009511c07b10387b15309515408411e0330740330820501008befe46171f800046171e46171d46171c46171b46171a46171946171846171746171646171546171446171346171246171146171046170f46170e46170d46170c46170b46170a4617094617084617074617064617054617044617034617024617014607491118490149110849111083170a0501821710821818821908821ad49808d4a707d487075107163307330850100a2dfe837833070133090a030133078000330850100c18fe8377330833090a01390808000251080d330710000383770a040133078000330850100ef3fd8378330733093300100a03019511807b10787b15707b1668951580008411e06416330740330820501012c7fd46171f800046171e46171d46171c46171b46171a46171946171846171746171646171546171446171346171246171146171046170f46170e46170d46170c46170b46170a461709461708461707461703330804000246170246170146077b681839080400024617064617054617045318045d83674033080a010180675c977720140800000000785598c2ab87419517e08477e07b67106471491718491710491708490783770a0501826a1082a71082a81882a90882aad49808d4a707d4870752070c82671881775617031733073308501014f3fc837833070133090a03014916384916304916202a9568204916283300169511d87b10207b15187b161082897b19088289087b198285108286183307800033082033000228abfc33078000330820501018a1fc837833092033070a03330733001a289cfd330750101a97fd33070150101c8ffd0049489220248414d25529494992244992244992244992244992244992244992244952521a122149928490244992244992244992244929a9494a920aa546a13a24d428546992444a4248922449922449922449484a4812a949004952926a929424292a949a449224292989249150aaa4901000"
+          },
+          "methodIdentifiers": {
+            "foo()": "c2985578"
+          }
+        },
+        "irOptimized": "/// @use-src 0:\"contracts/new.sol\"\nobject \"YourContract_10\" {\n    code {\n        {\n            /// @src 0:24:122  \"contract YourContract {...\"\n            let _1 := memoryguard(0x80)\n            mstore(64, _1)\n            if callvalue() { revert(0, 0) }\n            let _2 := datasize(\"YourContract_10_deployed\")\n            codecopy(_1, dataoffset(\"YourContract_10_deployed\"), _2)\n            return(_1, _2)\n        }\n    }\n    /// @use-src 0:\"contracts/new.sol\"\n    object \"YourContract_10_deployed\" {\n        code {\n            {\n                /// @src 0:24:122  \"contract YourContract {...\"\n                let _1 := memoryguard(0x80)\n                mstore(64, _1)\n                if iszero(lt(calldatasize(), 4))\n                {\n                    let _2 := 0\n                    if eq(0xc2985578, shr(224, calldataload(_2)))\n                    {\n                        if callvalue() { revert(_2, _2) }\n                        if slt(add(calldatasize(), not(3)), _2) { revert(_2, _2) }\n                        mstore(_1, /** @src 0:111:113  \"42\" */ 0x2a)\n                        /// @src 0:24:122  \"contract YourContract {...\"\n                        return(_1, 32)\n                    }\n                }\n                revert(0, 0)\n            }\n        }\n        data \".metadata\" hex\"a164736f6c6343000811000a\"\n    }\n}\n",
+        "hash": "02c4c1b7f0c8d01183b70dd2e77cbcf2164993a180193852fe5fe801199f288b",
+        "factoryDependencies": {}
+      }
+    }
+  },
+  "sources": {
+    "contracts/new.sol": {
+      "id": 0,
+      "ast": {
+        "absolutePath": "contracts/new.sol",
+        "exportedSymbols": {
+          "YourContract": [
+            10
+          ]
+        },
+        "id": 11,
+        "nodeType": "SourceUnit",
+        "nodes": [
+          {
+            "id": 1,
+            "literals": [
+              "solidity",
+              "^",
+              "0.8",
+              ".0"
+            ],
+            "nodeType": "PragmaDirective",
+            "src": "0:23:0"
+          },
+          {
+            "abstract": false,
+            "baseContracts": [],
+            "canonicalName": "YourContract",
+            "contractDependencies": [],
+            "contractKind": "contract",
+            "fullyImplemented": true,
+            "id": 10,
+            "linearizedBaseContracts": [
+              10
+            ],
+            "name": "YourContract",
+            "nameLocation": "33:12:0",
+            "nodeType": "ContractDefinition",
+            "nodes": [
+              {
+                "body": {
+                  "id": 8,
+                  "nodeType": "Block",
+                  "src": "94:26:0",
+                  "statements": [
+                    {
+                      "expression": {
+                        "hexValue": "3432",
+                        "id": 6,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "111:2:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_rational_42_by_1",
+                          "typeString": "int_const 42"
+                        },
+                        "value": "42"
+                      },
+                      "functionReturnParameters": 5,
+                      "id": 7,
+                      "nodeType": "Return",
+                      "src": "104:9:0"
+                    }
+                  ]
+                },
+                "functionSelector": "c2985578",
+                "id": 9,
+                "implemented": true,
+                "kind": "function",
+                "modifiers": [],
+                "name": "foo",
+                "nameLocation": "61:3:0",
+                "nodeType": "FunctionDefinition",
+                "parameters": {
+                  "id": 2,
+                  "nodeType": "ParameterList",
+                  "parameters": [],
+                  "src": "64:2:0"
+                },
+                "returnParameters": {
+                  "id": 5,
+                  "nodeType": "ParameterList",
+                  "parameters": [
+                    {
+                      "constant": false,
+                      "id": 4,
+                      "mutability": "mutable",
+                      "name": "",
+                      "nameLocation": "-1:-1:-1",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 9,
+                      "src": "88:4:0",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      },
+                      "typeName": {
+                        "id": 3,
+                        "name": "uint",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "88:4:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "src": "87:6:0"
+                },
+                "scope": 10,
+                "src": "52:68:0",
+                "stateMutability": "pure",
+                "virtual": false,
+                "visibility": "public"
+              }
+            ],
+            "scope": 11,
+            "src": "24:98:0",
+            "usedErrors": []
+          }
+        ],
+        "src": "0:122:0"
+      }
+    }
+  },
+  "errors": [
+    {
+      "component": "general",
+      "errorCode": "1878",
+      "formattedMessage": "Warning: SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing \"SPDX-License-Identifier: <SPDX-License>\" to each source file. Use \"SPDX-License-Identifier: UNLICENSED\" for non-open-source code. Please see https://spdx.org for more information.\n--> contracts/new.sol\n\n",
+      "message": "SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing \"SPDX-License-Identifier: <SPDX-License>\" to each source file. Use \"SPDX-License-Identifier: UNLICENSED\" for non-open-source code. Please see https://spdx.org for more information.",
+      "severity": "warning",
+      "sourceLocation": {
+        "file": "contracts/new.sol",
+        "start": -1,
+        "end": -1
+      },
+      "type": "Warning"
+    }
+  ],
+  "version": "0.8.17",
+  "long_version": "0.8.17+commit.8df45f5f.Darwin.appleclang",
+  "revive_version": "0.1.0-dev.12+commit.497dae2.llvm-18.1.8"
+}

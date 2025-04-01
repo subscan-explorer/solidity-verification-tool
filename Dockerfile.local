@@ -4,6 +4,8 @@ ENV CONF_DIR=/configs
 
 WORKDIR /app
 
+RUN apk update && apk add gcompat
+
 COPY . .
 
 RUN go build -o verification

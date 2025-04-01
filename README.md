@@ -8,12 +8,14 @@ bytecode.
 - Recompiles Solidity smart contracts using a specified compiler version.
 - Compares the on-chain bytecode with the recompiled bytecode.
 - Provides detailed error messages if verification fails.
+- Polkadot revive(https://github.com/paritytech/revive) support.
+- No dependency on external services or third-party libraries.
 
 ## Installation
 
 1. Clone the repository:
 ```sh
-   git clone https://github.com/subscan-explorer/solidity-verification-tool.git
+git clone https://github.com/subscan-explorer/solidity-verification-tool.git
 ```
 
 2. Navigate to the project directory:
@@ -40,6 +42,14 @@ go run main.go
 
 ```sh
 curl -X POST -H "Content-Type: application/json" -d '{"metadata": {...}, "compilerVersion": "v0.8.26+commit.8a97fa7a","chain":46,"address":"xxxx}' http://localhost:8081/verify
+```
+
+## Revive support
+
+Building Solidity contracts for PolkaVM requires installing extra dependencies. To install revive, run the following command:
+
+```sh
+go run . download # if will auto download resolc binary in static folder
 ```
 
 ## License

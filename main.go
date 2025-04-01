@@ -20,7 +20,13 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/verify", verificationHandler)
-	util.Logger().Info("Server started on :8081")
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	args := os.Args
+	switch args[1] {
+	case "download":
+		download()
+	default:
+		http.HandleFunc("/verify", verificationHandler)
+		util.Logger().Info("Server started on :8081")
+		log.Fatal(http.ListenAndServe(":8081", nil))
+	}
 }

@@ -33,7 +33,7 @@ func (v *VerificationRequest) fetchChainBytecode(ctx context.Context) (string, e
 	return result.Result, nil
 }
 
-func (v *VerificationRequest) VerifyMetadata() (*SolcMetadata, error) {
+func (v *VerificationRequest) VerifyMetadata() (IMetadata, error) {
 	var metadata SolcMetadata
 	err := json.Unmarshal([]byte(v.Metadata), &metadata)
 	if err != nil {
@@ -46,6 +46,9 @@ func (v *VerificationRequest) VerifyMetadata() (*SolcMetadata, error) {
 		if source.Content == "" {
 			return nil, InvalidValidInputMetadata
 		}
+	}
+	if chainGroup[v.Chain].Revive {
+		return &ReviveMetadata{metadata}, nil
 	}
 	return &metadata, nil
 }

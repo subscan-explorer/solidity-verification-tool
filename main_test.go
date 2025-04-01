@@ -72,7 +72,7 @@ func Test_compile(t *testing.T) {
 		t.Errorf("VerifyMetadata failed: %v", err)
 	}
 
-	_, err = recompileContract(ctx, input, solcVersion)
+	_, err = input.recompileContract(ctx, solcVersion)
 	if err != nil {
 		t.Errorf("compile failed: %v", err)
 	}
@@ -188,7 +188,7 @@ func Test_MultifileCompile(t *testing.T) {
 	solcVersion := "v0.8.17+commit.8df45f5f"
 	_ = sm.EnsureVersion(solcVersion)
 
-	output, err := recompileContract(context.Background(), &metadata, solcVersion)
+	output, err := metadata.recompileContract(context.Background(), solcVersion)
 	if err != nil {
 		t.Error(err)
 	}
