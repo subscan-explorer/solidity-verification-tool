@@ -1,0 +1,51 @@
+{
+  "contracts": {
+    "contracts/new.sol": {
+      "YourContract": {
+        "abi": [
+          {
+            "inputs": [],
+            "name": "foo",
+            "outputs": [
+              {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+              }
+            ],
+            "stateMutability": "pure",
+            "type": "function"
+          }
+        ],
+        "evm": {
+          "bytecode": {
+            "object": "6080604052348015600f57600080fd5b50604e80601d6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063c298557814602d575b600080fd5b602a60405190815260200160405180910390f3fea164736f6c6343000811000a"
+          },
+          "deployedBytecode": {
+            "object": "6080604052348015600f57600080fd5b506004361060285760003560e01c8063c298557814602d575b600080fd5b602a60405190815260200160405180910390f3fea164736f6c6343000811000a"
+          }
+        }
+      }
+    }
+  },
+  "errors": [
+    {
+      "component": "general",
+      "errorCode": "1878",
+      "formattedMessage": "Warning: SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing \"SPDX-License-Identifier: <SPDX-License>\" to each source file. Use \"SPDX-License-Identifier: UNLICENSED\" for non-open-source code. Please see https://spdx.org for more information.\n--> contracts/new.sol\n\n",
+      "message": "SPDX license identifier not provided in source file. Before publishing, consider adding a comment containing \"SPDX-License-Identifier: <SPDX-License>\" to each source file. Use \"SPDX-License-Identifier: UNLICENSED\" for non-open-source code. Please see https://spdx.org for more information.",
+      "severity": "warning",
+      "sourceLocation": {
+        "end": -1,
+        "file": "contracts/new.sol",
+        "start": -1
+      },
+      "type": "Warning"
+    }
+  ],
+  "sources": {
+    "contracts/new.sol": {
+      "id": 0
+    }
+  }
+}

@@ -138,5 +138,13 @@
     ],
     "contractFetchAddress": "https://bifrost.api.subscan.io/api/scan/evm/contract",
     "subscan": true
+  },
+  "420420421": {
+    "rpc": [
+      "https://westend-asset-hub-eth-rpc.polkadot.io/"
+    ],
+    "contractFetchAddress": "https://assethub-westend.api.subscan.io/api/scan/evm/contract",
+    "subscan": true,
+    "revive": true
   }
 }

@@ -78,9 +78,9 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	util.Logger().Info(fmt.Sprintf("start compile contract %s with version %s", req.Address, req.CompilerVersion))
-	compiledOutput, err := recompileContract(ctx, inputJson, req.CompilerVersion)
+	compiledOutput, err := inputJson.recompileContract(ctx, req.CompilerVersion)
 	if err != nil {
-		util.Logger().Error(fmt.Sprintf("compile contract %s with version %s failed: %s", req.Address, req.CompilerVersion, err.Error()))
+		util.Logger().Error(fmt.Errorf("compile contract %s with version %s failed: %s", req.Address, req.CompilerVersion, err.Error()))
 		respondError(w, err)
 		return
 	}

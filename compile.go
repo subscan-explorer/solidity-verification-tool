@@ -11,6 +11,10 @@ import (
 	"strconv"
 )
 
+type IMetadata interface {
+	recompileContract(_ context.Context, version string) (*SolcOutput, error)
+}
+
 type SolcMetadata struct {
 	Language string              `json:"language"`
 	Sources  SourcesCode         `json:"sources"`
@@ -26,7 +30,7 @@ func (s *SolcMetadata) format() {
 	s.Compiler = nil
 	s.Version = nil
 	s.Settings.CompilationTarget = nil
-	s.Settings.OutputSelection = map[string]map[string]interface{}{"*": {"*": []string{"abi", "evm.bytecode.object", "evm.deployedBytecode.object"}}}
+	s.Settings.OutputSelection = map[string]map[string]interface{}{"*": {"*": []string{"abi", "evm.bytecode", "evm.deployedBytecode"}}}
 }
 
 func (s *SolcMetadata) PickComplicationTarget() (string, string) {
@@ -111,7 +115,7 @@ func (o *SolcOutput) PickBytesCode(compileTarget, contractName string) string {
 }
 
 type SolcContract struct {
-	Abi []interface{} `json:"abi"`
+	Abi []any `json:"abi"`
 	Evm struct {
 		Bytecode struct {
 			Object string `json:"object"`
@@ -120,10 +124,10 @@ type SolcContract struct {
 			Object string `json:"object"`
 		}
 	} `json:"evm"`
-	Metadata string `json:"metadata"`
+	Metadata any `json:"metadata,omitempty"`
 }
 
-func recompileContract(_ context.Context, metadata *SolcMetadata, version string) (*SolcOutput, error) {
+func (s *SolcMetadata) recompileContract(_ context.Context, version string) (*SolcOutput, error) {
 	solcPath := filepath.Join(SolcManagerInstance.cacheDir, version)
 
 	cmd := exec.Command(solcPath, "--standard-json")
@@ -132,7 +136,7 @@ func recompileContract(_ context.Context, metadata *SolcMetadata, version string
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
 	var result SolcOutput
-	result.CompileTarget, result.ContractName = metadata.PickComplicationTarget()
+	result.CompileTarget, result.ContractName = s.PickComplicationTarget()
 	stdinPipe, err := cmd.StdinPipe()
 	if err != nil {
 		return nil, fmt.Errorf("create pipe fail: %v", err)
@@ -142,7 +146,7 @@ func recompileContract(_ context.Context, metadata *SolcMetadata, version string
 		return nil, fmt.Errorf("start cmd fail %v", err)
 	}
 
-	if _, err = io.WriteString(stdinPipe, metadata.String()); err != nil {
+	if _, err = io.WriteString(stdinPipe, s.String()); err != nil {
 		return nil, err
 	}
 	stdinPipe.Close()
