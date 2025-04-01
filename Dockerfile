@@ -1,11 +1,9 @@
-FROM golang:1.22-alpine
-
-ENV CONF_DIR=/configs
+FROM alpine:3
 
 WORKDIR /app
+RUN apk update && apk add gcompat
 
-COPY . .
+COPY ./verification verification
+COPY ./*.json ./
 
-RUN go build -o verification
-
-ENTRYPOINT ["./verification"]
+ENTRYPOINT ["/app/verification"]
