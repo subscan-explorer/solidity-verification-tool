@@ -25,7 +25,6 @@ type ReviveMetadata struct {
 func (s *ReviveMetadata) recompileContract(_ context.Context, version string) (*SolcOutput, error) {
 	//  ./resolc --solc ./v0.8.17+commit.8df45f5f  --standard-json<example_input.json
 	solcPath := filepath.Join(SolcManagerInstance.cacheDir, "resolc")
-	fmt.Println("solcPath:", solcPath)
 	cmd := exec.Command(solcPath, "--solc", filepath.Join(SolcManagerInstance.cacheDir, version), "--standard-json")
 	fmt.Println(cmd)
 	var stdoutBuf, stderrBuf bytes.Buffer
@@ -69,21 +68,22 @@ type Asset struct {
 
 func download() {
 	util.Logger().Info("Start downloading latest resolc binary")
-	fileName := downloadLatestResolc()
+	const repo = "paritytech/revive"
+	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+	fileName := downloadLatestResolc(apiURL)
 	err := extractAndSetExec(fileName, "static", strings.Replace(fileName, ".tar.gz", "", 1), "resolc")
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func downloadLatestResolc() string {
-	const repo = "paritytech/revive"
+func downloadLatestResolc(apiURL string) string {
 	fileName := "resolc-x86_64-unknown-linux-musl.tar.gz"
 	if runtime.GOOS == "darwin" {
 		fileName = "resolc-universal-apple-darwin.tar.gz"
 	}
 
-	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+	util.Logger().Info(fmt.Sprintf("Start downloading latest resolc binary %s", apiURL))
 	resp, err := http.Get(apiURL)
 	if err != nil {
 		panic(err)

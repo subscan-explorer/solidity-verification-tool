@@ -2,7 +2,6 @@ package util
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 func Debug(i interface{}) {
@@ -18,5 +17,5 @@ func Debug(i interface{}) {
 		b, _ := json.MarshalIndent(i, "", "  ")
 		val = string(b)
 	}
-	fmt.Println(val)
+	Logger().Debug(val)
 }

@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io"
 	"log"
 	"os"
 )
@@ -13,6 +14,15 @@ func Logger() *MLogger {
 
 func init() {
 	defaultLogger = NewLogger()
+}
+
+func SetLogger(output io.Writer) {
+	defaultLogger = &MLogger{
+		infoLogger:    log.New(output, "INFO: ", 0),
+		warningLogger: log.New(output, "WARNING: ", 0),
+		errorLogger:   log.New(output, "ERROR: ", 0),
+		debugLogger:   log.New(output, "DEBUG: ", 0),
+	}
 }
 
 type MLogger struct {
