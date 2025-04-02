@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -17,6 +18,11 @@ func Test_downloadLatestResolc(t *testing.T) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/resolc-universal-apple-darwin.tar.gz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("mock binary content"))
+	})
+
+	mux.HandleFunc("/resolc-x86_64-unknown-linux-musl.tar.gz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("mock binary content"))
 	})
@@ -32,9 +38,13 @@ func Test_downloadLatestResolc(t *testing.T) {
 				{
 					"name": "resolc-universal-apple-darwin.tar.gz",
 					"browser_download_url": "%s/resolc-universal-apple-darwin.tar.gz"
+				},
+				{
+					"name": "resolc-x86_64-unknown-linux-musl.tar.gz",
+					"browser_download_url": "%s/resolc-x86_64-unknown-linux-musl.tar.gz"
 				}
 			]
-		}`, mockServer.URL)))
+		}`, mockServer.URL, mockServer.URL)))
 	})
 	defer mockServer.Close()
 
@@ -42,8 +52,11 @@ func Test_downloadLatestResolc(t *testing.T) {
 	fileName := downloadLatestResolc(mockServer.URL + "/repos/paritytech/revive/releases/latest")
 
 	// Check if the file was downloaded correctly
-	if fileName != "resolc-universal-apple-darwin.tar.gz" {
-		t.Errorf("expected file name to be resolc-universal-apple-darwin.tar.gz, got %s", fileName)
+	if runtime.GOOS == "darwin" && fileName != "resolc-universal-apple-darwin.tar.gz" {
+		t.Fatalf("expected file name to be resolc-universal-apple-darwin.tar.gz, got %s", fileName)
+	}
+	if runtime.GOOS == "linux" && fileName != "resolc-x86_64-unknown-linux-musl.tar.gz" {
+		t.Fatalf("expected file name to be resolc-x86_64-unknown-linux-musl.tar.gz, got %s", fileName)
 	}
 }
 

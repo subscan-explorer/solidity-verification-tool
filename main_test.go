@@ -20,7 +20,7 @@ func Test_SolcManager(t *testing.T) {
 	sm := NewSolcManager()
 
 	// Test EnsureVersion with a non-existent version
-	solcVersion := "v0.8.9+commit.e5eed63a"
+	solcVersion := "v0.4.2+commit.af6afb04"
 	err := sm.EnsureVersion(solcVersion)
 	if err != nil {
 		t.Errorf("EnsureVersion failed: %v", err)

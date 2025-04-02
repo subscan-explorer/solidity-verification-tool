@@ -45,7 +45,7 @@ func (sm *SolcManager) EnsureVersion(version string) error {
 	if err := sm.downloadSolc(version); err != nil {
 		return err
 	}
-	sm.versions.Store(versionDir, versionDir)
+	sm.versions.Store(version, versionDir)
 	return nil
 }
 
