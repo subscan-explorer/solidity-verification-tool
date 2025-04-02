@@ -1,5 +1,7 @@
 name: CI
 on:
+  pull_request:
+    branches: [ "main" ]
   push:
     tags: ["*"]
 
@@ -28,6 +30,11 @@ jobs:
 
       - name: download server package
         run: go mod download -x
+
+      - name: Test
+        run: |
+          go test -v ./...
+
       - name: build server
         run: make build
 
