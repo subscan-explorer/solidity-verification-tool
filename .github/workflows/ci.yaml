@@ -1,11 +1,33 @@
 name: CI
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["develop", "main"]
   push:
     tags: ["*"]
+    branches: ["develop",""]
 
 jobs:
+  golangci-lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v5
+        name: set go
+        with:
+          go-version-file: 'go.mod'
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          args: --timeout 10m
+      - name: init gitleaks
+        run: |
+          wget ${{ vars.GITLEAKS_URL }}
+          tar -zxvf ${{ vars.GITLEAKS_FILENAME }} -C /tmp/
+          sudo mv /tmp/gitleaks /usr/local/bin/
+      - name: gitleaks
+        run: |
+          gitleaks detect  -v --redact --no-git
   build-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest-8c32g
@@ -16,12 +38,16 @@ jobs:
       - name: Docker login
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.QUAY_IO_BOT_USERNAME }}
-          password: ${{ secrets.QUAY_IO_BOT_PASSWORD }}
-          registry: quay.io
+          username: _json_key
+          password: ${{ secrets.GCR_SA_KEY }}
+          registry: asia-southeast1-docker.pkg.dev
 
       - uses: olegtarasov/get-tag@v2.1
         id: tag-name
+      - uses: benjlevesque/short-sha@v1.2
+        id: short-sha
+        with:
+          length: 7
 
       - name: Setup Golang with cache
         uses: magnetikonline/action-golang-cache@v4
@@ -30,11 +56,6 @@ jobs:
 
       - name: download server package
         run: go mod download -x
-
-      - name: Test
-        run: |
-          go test -v ./...
-
       - name: build server
         run: make build
 
@@ -43,6 +64,24 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           context: .
-          push: true
-          tags: quay.io/subscan-explorer/solidity-verification-tool:${{ env.GIT_TAG_NAME }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: asia-southeast1-docker.pkg.dev/${{ secrets.GCR_PROJECT_ID }}/subscan-explorer/solidity-verification-tool:${{ env.GIT_TAG_NAME }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and publish sha docker image
+        uses: docker/build-push-action@v3
+        if: startsWith(github.ref, 'refs/tags/') == false && github.ref == 'refs/heads/develop'
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: asia-southeast1-docker.pkg.dev/${{ secrets.GCR_PROJECT_ID }}/subscan-explorer/solidity-verification-tool:sha-${{ env.SHA }}-${{ github.run_number }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - uses: 8398a7/action-slack@v3
+        if: failure()
+        with:
+          status: ${{ job.status }}
+          fields: repo,author,eventName,workflow,ref,commit
+          channel: ${{ secrets.SLACK_CHANNEL_ID }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_INCOMING_WEBHOOK_URL }}
