@@ -92,6 +92,11 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if verified.Status == mismatch {
+		respondError(w, fmt.Errorf("bytecode mismatch"))
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(VerificationResponse{VerifiedStatus: verified.Status,

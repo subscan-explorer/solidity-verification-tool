@@ -170,5 +170,8 @@ func BytecodeWithoutMetadata(code string) string {
 		return code
 	}
 	metadataSize := int((numericResult * 2) + 4)
+	if metadataSize > len(code) {
+		return code
+	}
 	return code[:len(code)-metadataSize]
 }
