@@ -21,12 +21,21 @@ func init() {
 
 func main() {
 	args := os.Args
-	switch args[1] {
-	case "download":
-		download()
-	default:
+
+	var server = func() {
 		http.HandleFunc("/verify", verificationHandler)
 		util.Logger().Info("Server started on :8081")
 		log.Fatal(http.ListenAndServe(":8081", nil))
 	}
+
+	if len(args) >= 2 {
+		switch args[1] {
+		case "download":
+			download()
+		default:
+			server()
+		}
+		return
+	}
+	server()
 }

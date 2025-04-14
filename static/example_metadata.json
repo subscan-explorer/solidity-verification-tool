@@ -10,7 +10,7 @@
     "evmVersion": "istanbul",
     "libraries": {},
     "metadata": {
-      "bytecodeHash": "ipfs"
+      "bytecodeHash": "none"
     },
     "optimizer": {
       "enabled": true,

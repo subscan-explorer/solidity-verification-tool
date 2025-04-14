@@ -27,6 +27,15 @@ func Test_downloadLatestResolc(t *testing.T) {
 		_, _ = w.Write([]byte("mock binary content"))
 	})
 
+	mux.HandleFunc("/resolc-x86_64-unknown-linux-musl", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("mock binary content"))
+	})
+	mux.HandleFunc("/resolc-universal-apple-darwin", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("mock binary content"))
+	})
+
 	// Create a mock server with the ServeMux
 	mockServer := httptest.NewServer(mux)
 	// Register multiple handlers
@@ -42,9 +51,17 @@ func Test_downloadLatestResolc(t *testing.T) {
 				{
 					"name": "resolc-x86_64-unknown-linux-musl.tar.gz",
 					"browser_download_url": "%s/resolc-x86_64-unknown-linux-musl.tar.gz"
+				},
+				{
+					"name": "resolc-universal-apple-darwin",
+					"browser_download_url": "%s/resolc-universal-apple-darwin"
+				},
+				{
+					"name": "resolc-x86_64-unknown-linux-musl",
+					"browser_download_url": "%s/resolc-x86_64-unknown-linux-musl"
 				}
 			]
-		}`, mockServer.URL, mockServer.URL)))
+		}`, mockServer.URL, mockServer.URL, mockServer.URL, mockServer.URL)))
 	})
 	defer mockServer.Close()
 
@@ -52,10 +69,10 @@ func Test_downloadLatestResolc(t *testing.T) {
 	fileName := downloadLatestResolc(mockServer.URL + "/repos/paritytech/revive/releases/latest")
 
 	// Check if the file was downloaded correctly
-	if runtime.GOOS == "darwin" && fileName != "resolc-universal-apple-darwin.tar.gz" {
+	if runtime.GOOS == "darwin" && (fileName != "resolc-universal-apple-darwin.tar.gz" && fileName != "resolc-universal-apple-darwin") {
 		t.Fatalf("expected file name to be resolc-universal-apple-darwin.tar.gz, got %s", fileName)
 	}
-	if runtime.GOOS == "linux" && fileName != "resolc-x86_64-unknown-linux-musl.tar.gz" {
+	if runtime.GOOS == "linux" && (fileName != "resolc-x86_64-unknown-linux-musl.tar.gz" && fileName != "resolc-x86_64-unknown-linux-musl") {
 		t.Fatalf("expected file name to be resolc-x86_64-unknown-linux-musl.tar.gz, got %s", fileName)
 	}
 }
