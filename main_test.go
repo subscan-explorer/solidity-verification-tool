@@ -251,7 +251,7 @@ func Test_verificationHandler(t *testing.T) {
 	if resp.VerifiedStatus != mismatch && resp.VerifiedStatus != perfect || resp.VerifiedStatus == partial {
 		t.Errorf("verification status not match")
 	}
-	if resp.Message != "ok" {
-		t.Errorf("resp message should be ok")
+	if resp.Message != "bytecode mismatch" {
+		t.Errorf("resp message should be bytecode mismatch")
 	}
 }
