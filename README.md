@@ -41,7 +41,7 @@ go run main.go
 2. Send a POST request to `/verify` with the contract metadata and compiler version.
 
 ```sh
-curl -X POST -H "Content-Type: application/json" -d '{"metadata": {...}, "compilerVersion": "v0.8.26+commit.8a97fa7a","chain":46,"address":"xxxx}' http://localhost:8081/verify
+curl -X POST -H "Content-Type: application/json" -d '{"metadata": {...}, "compilerVersion": "v0.8.26+commit.8a97fa7a","chain":46,"address":"xxxx"}' http://localhost:8081/verify
 ```
 
 ## Revive support
@@ -49,7 +49,7 @@ curl -X POST -H "Content-Type: application/json" -d '{"metadata": {...}, "compil
 Building Solidity contracts for PolkaVM requires installing extra dependencies. To install revive, run the following command:
 
 ```sh
-go run . download # if will auto download resolc binary in static folder
+go run . download # if will auto download latest resolc binary in static folder
 ```
 
 ## License

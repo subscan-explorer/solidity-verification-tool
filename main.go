@@ -31,7 +31,11 @@ func main() {
 	if len(args) >= 2 {
 		switch args[1] {
 		case "download":
-			download()
+			var tagName string
+			if len(args) >= 3 {
+				tagName = args[2]
+			}
+			download(tagName)
 		default:
 			server()
 		}

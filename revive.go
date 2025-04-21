@@ -46,7 +46,7 @@ func (s *ReviveMetadata) recompileContract(_ context.Context, version string) (*
 	stdinPipe.Close()
 
 	if err = cmd.Wait(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf(stderrBuf.String())
 	}
 
 	if err = json.Unmarshal(stdoutBuf.Bytes(), &result); err != nil {
@@ -65,10 +65,13 @@ type Asset struct {
 	DownloadURL string `json:"browser_download_url"`
 }
 
-func download() {
+func download(tagName string) {
 	util.Logger().Info("Start downloading latest resolc binary")
 	const repo = "paritytech/revive"
-	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+	var apiURL = fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
+	if tagName != "" {
+		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/releases/tags/%s", repo, tagName)
+	}
 	fileName := downloadLatestResolc(apiURL)
 	var err error
 	if strings.HasSuffix(fileName, ".tar.gz") {
@@ -87,9 +90,9 @@ func download() {
 }
 
 func downloadLatestResolc(apiURL string) string {
-	fileName := "resolc-x86_64-unknown-linux-musl"
+	fileNames := []string{"resolc-x86_64-unknown-linux-musl", "resolc-x86_64-unknown-linux-musl.tar.gz"}
 	if runtime.GOOS == "darwin" {
-		fileName = "resolc-universal-apple-darwin"
+		fileNames = []string{"resolc-universal-apple-darwin", "resolc-universal-apple-darwin.tar.gz"}
 	}
 
 	util.Logger().Info(fmt.Sprintf("Start downloading latest resolc binary %s", apiURL))
@@ -109,15 +112,19 @@ func downloadLatestResolc(apiURL string) string {
 	}
 
 	var downloadURL string
+	var fileName string
 	for _, asset := range release.Assets {
-		if asset.Name == fileName {
-			util.Debug(asset)
-			downloadURL = asset.DownloadURL
-			break
+		for _, name := range fileNames {
+			if asset.Name == name {
+				util.Debug(asset)
+				fileName = name
+				downloadURL = asset.DownloadURL
+				break
+			}
 		}
 	}
 
-	if downloadURL == "" {
+	if downloadURL == "" || fileName == "" {
 		panic("file not found")
 	}
 

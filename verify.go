@@ -94,8 +94,6 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecod
 		return &Match{Status: perfect}, nil
 	}
 
-	// util.Logger().Debug(fmt.Sprintf("deployedBytecode: %s", chainBytecode))
-	// util.Logger().Debug(fmt.Sprintf("withLibraries: %s", recompileDeployCodeWithLibraries))
 	trimmedChainBytecode := util.TrimHex(BytecodeWithoutMetadata(chainBytecode))
 	trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(recompileDeployCodeWithLibraries))
 	if trimmedChainBytecode == util.TrimHex(trimmedWithLibraries) {
@@ -103,9 +101,7 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecod
 	}
 
 	if len(trimmedChainBytecode) == len(trimmedWithLibraries) {
-		// util.Logger().Debug("start compare create bytecode")
 		createData, err := fetchCreateBytecode(ctx, v.Address, v.Chain)
-		// util.Logger().Debug(fmt.Sprintf("query createData from subscan: %s ", createData))
 		if err != nil {
 			return &Match{Status: mismatch}, err
 		}
