@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -16,7 +20,7 @@ func Test_SolcManager(t *testing.T) {
 	sm := NewSolcManager()
 
 	// Test EnsureVersion with a non-existent version
-	solcVersion := "v0.8.9+commit.e5eed63a"
+	solcVersion := "v0.4.2+commit.af6afb04"
 	err := sm.EnsureVersion(solcVersion)
 	if err != nil {
 		t.Errorf("EnsureVersion failed: %v", err)
@@ -29,7 +33,6 @@ func Test_SolcManager(t *testing.T) {
 }
 
 func Test_fetchChainInfo(t *testing.T) {
-	fetchChainInfo()
 
 	if len(chainGroup) == 0 {
 		t.Errorf("chainInfo is nil")
@@ -72,7 +75,7 @@ func Test_compile(t *testing.T) {
 		t.Errorf("VerifyMetadata failed: %v", err)
 	}
 
-	_, err = recompileContract(ctx, input, solcVersion)
+	_, err = input.recompileContract(ctx, solcVersion)
 	if err != nil {
 		t.Errorf("compile failed: %v", err)
 	}
@@ -136,6 +139,9 @@ func Test_Metadata(t *testing.T) {
 	}
 	defer file.Close()
 	data, err := io.ReadAll(file)
+	if err != nil {
+		t.Error(err)
+	}
 	var metadata SolcMetadata
 	err = json.Unmarshal(data, &metadata)
 	if err != nil {
@@ -155,4 +161,97 @@ func Test_Metadata(t *testing.T) {
 		t.Errorf("Compiler not nil")
 	}
 
+}
+
+func Test_MultifileCompile(t *testing.T) {
+	file, err := os.Open("static/ORMP_metadata.json")
+	if err != nil {
+		t.Error(err)
+	}
+	defer file.Close()
+	data, err := io.ReadAll(file)
+	if err != nil {
+		t.Error(err)
+	}
+	var metadata SolcMetadata
+	err = json.Unmarshal(data, &metadata)
+	if err != nil {
+		t.Errorf("json unmarshal fail: %v", err)
+	}
+
+	target, contractName := metadata.PickComplicationTarget()
+	if target != "src/ORMP.sol" || contractName != "ORMP" {
+		t.Errorf("target %s, contractName %s not match", target, contractName)
+	}
+	//
+	metadata.format()
+
+	sm := NewSolcManager()
+	// Test EnsureVersion with a non-existent version
+	solcVersion := "v0.8.17+commit.8df45f5f"
+	_ = sm.EnsureVersion(solcVersion)
+
+	output, err := metadata.recompileContract(context.Background(), solcVersion)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(output.Contracts) == 0 {
+		t.Errorf("no contracts compiled")
+	}
+}
+
+// Test function for downloadSolc
+func Test_downloadSolc(t *testing.T) {
+	sm := NewSolcManager()
+	solcVersion := "v0.4.2+commit.af6afb04"
+	err := sm.downloadSolc(solcVersion)
+	if err != nil {
+		t.Errorf("downloadSolc failed: %v", err)
+	}
+
+	// Check if the file exists
+	solcFile := filepath.Join(sm.cacheDir, solcVersion)
+	if _, err := os.Stat(solcFile); os.IsNotExist(err) {
+		t.Errorf("solc file not found: %v", solcFile)
+	}
+	// check file chmod
+	fileInfo, err := os.Stat(solcFile)
+	if err != nil {
+		t.Errorf("stat solc file failed: %v", err)
+	}
+	if fileInfo.Mode() != 0755 {
+		t.Errorf("solc file mode not 0755")
+	}
+}
+
+func Test_verificationHandler(t *testing.T) {
+	reqBody := VerificationRequest{
+		Address:         "0x04e4D345b48E60Dc3EE160Ba682ff7B8654d461f",
+		Metadata:        `{"language":"Solidity","settings":{"evmVersion":"istanbul","libraries":{},"remappings":[],"outputSelection":{"*":{"*":["abi","evm.bytecode.object"]}}},"sources":{"contracts/new.sol":{"content":"pragma solidity ^0.8.0;\ncontract YourContract {\n    function foo() public pure returns (uint) {\n        return 42;\n    }\n"}}}`,
+		Chain:           46,
+		CompilerVersion: "v0.8.0+commit.c7dfd78e",
+	}
+	body, _ := json.Marshal(reqBody)
+	req, err := http.NewRequest("POST", "/verify", bytes.NewBuffer(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(verificationHandler)
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp VerificationResponse
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Errorf("could not decode response: %v", err)
+	}
+	if resp.VerifiedStatus != mismatch && resp.VerifiedStatus != perfect || resp.VerifiedStatus == partial {
+		t.Errorf("verification status not match")
+	}
+	if resp.Message != "bytecode mismatch" {
+		t.Errorf("resp message should be bytecode mismatch")
+	}
 }

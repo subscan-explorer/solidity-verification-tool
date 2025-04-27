@@ -11,6 +11,10 @@ import (
 	"strconv"
 )
 
+type IMetadata interface {
+	recompileContract(_ context.Context, version string) (*SolcOutput, error)
+}
+
 type SolcMetadata struct {
 	Language string              `json:"language"`
 	Sources  SourcesCode         `json:"sources"`
@@ -26,7 +30,7 @@ func (s *SolcMetadata) format() {
 	s.Compiler = nil
 	s.Version = nil
 	s.Settings.CompilationTarget = nil
-	s.Settings.OutputSelection = map[string]map[string]interface{}{"*": {"*": []string{"abi", "evm.bytecode"}}}
+	s.Settings.OutputSelection = map[string]map[string]interface{}{"*": {"*": []string{"abi", "evm.bytecode", "evm.deployedBytecode"}}}
 }
 
 func (s *SolcMetadata) PickComplicationTarget() (string, string) {
@@ -50,7 +54,7 @@ type SolcMetadataSetting struct {
 		Enabled bool `json:"enabled"`
 		Runs    int  `json:"runs"`
 	} `json:"optimizer"`
-	EvmVersion        string                 `json:"evmVersion"`
+	EvmVersion        string                 `json:"evmVersion,omitempty"`
 	Libraries         map[string]interface{} `json:"libraries,omitempty"`
 	Metadata          map[string]interface{} `json:"metadata,omitempty"`
 	CompilationTarget map[string]string      `json:"compilationTarget,omitempty"`
@@ -84,9 +88,23 @@ type SolcOutput struct {
 		} `json:"sourceLocation"`
 		Type string `json:"type"`
 	} `json:"errors"`
+	ReviveVersion string `json:"revive_version,omitempty"` // pvm revive version
+	ContractName  string
+	CompileTarget string
 }
 
 func (o *SolcOutput) PickDeployedBytesCode(compileTarget, contractName string) string {
+	if compileTarget == "" {
+		for target := range o.Contracts {
+			for name := range o.Contracts[target] {
+				return o.Contracts[target][name].Evm.DeployedBytecode.Object
+			}
+		}
+	}
+	return o.Contracts[compileTarget][contractName].Evm.DeployedBytecode.Object
+}
+
+func (o *SolcOutput) PickBytesCode(compileTarget, contractName string) string {
 	if compileTarget == "" {
 		for target := range o.Contracts {
 			for name := range o.Contracts[target] {
@@ -97,37 +115,41 @@ func (o *SolcOutput) PickDeployedBytesCode(compileTarget, contractName string) s
 	return o.Contracts[compileTarget][contractName].Evm.Bytecode.Object
 }
 
-type SolcContract struct {
-	Abi []struct {
-		Inputs  []interface{} `json:"inputs"`
-		Name    string        `json:"name"`
-		Outputs []struct {
-			InternalType string `json:"internalType"`
-			Name         string `json:"name"`
-			Type         string `json:"type"`
-		} `json:"outputs"`
-		StateMutability string `json:"stateMutability"`
-		Type            string `json:"type"`
-	} `json:"abi"`
-	Evm struct {
-		Bytecode struct {
-			Object  string `json:"object"`
-			Opcodes string `json:"opcodes"`
-		} `json:"bytecode"`
-	} `json:"evm"`
-	Metadata string `json:"metadata"`
+func (o *SolcOutput) retryToFindCompileTarget() {
+	for target := range o.Contracts {
+		for contractName, source := range o.Contracts[target] {
+			if source.Evm.Bytecode.Object != "" {
+				o.CompileTarget = target
+				o.ContractName = contractName
+				return
+			}
+		}
+	}
 }
 
-func recompileContract(_ context.Context, metadata *SolcMetadata, version string) (*SolcOutput, error) {
-	sm := NewSolcManager()
-	solcPath := filepath.Join(sm.cacheDir, version)
+type SolcContract struct {
+	Abi []any `json:"abi"`
+	Evm struct {
+		Bytecode struct {
+			Object string `json:"object"`
+		} `json:"bytecode"`
+		DeployedBytecode struct {
+			Object string `json:"object"`
+		}
+	} `json:"evm"`
+	Metadata any `json:"metadata,omitempty"`
+}
+
+func (s *SolcMetadata) recompileContract(_ context.Context, version string) (*SolcOutput, error) {
+	solcPath := filepath.Join(SolcManagerInstance.cacheDir, version)
 
 	cmd := exec.Command(solcPath, "--standard-json")
 
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
-
+	var result SolcOutput
+	result.CompileTarget, result.ContractName = s.PickComplicationTarget()
 	stdinPipe, err := cmd.StdinPipe()
 	if err != nil {
 		return nil, fmt.Errorf("create pipe fail: %v", err)
@@ -137,7 +159,7 @@ func recompileContract(_ context.Context, metadata *SolcMetadata, version string
 		return nil, fmt.Errorf("start cmd fail %v", err)
 	}
 
-	if _, err = io.WriteString(stdinPipe, metadata.String()); err != nil {
+	if _, err = io.WriteString(stdinPipe, s.String()); err != nil {
 		return nil, err
 	}
 	stdinPipe.Close()
@@ -146,11 +168,9 @@ func recompileContract(_ context.Context, metadata *SolcMetadata, version string
 		return nil, err
 	}
 
-	var result SolcOutput
 	if err = json.Unmarshal(stdoutBuf.Bytes(), &result); err != nil {
 		return nil, err
 	}
-
 	return &result, nil
 }
 
@@ -163,5 +183,8 @@ func BytecodeWithoutMetadata(code string) string {
 		return code
 	}
 	metadataSize := int((numericResult * 2) + 4)
+	if metadataSize > len(code) {
+		return code
+	}
 	return code[:len(code)-metadataSize]
 }

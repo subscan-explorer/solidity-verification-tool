@@ -33,11 +33,9 @@ func (v *VerificationRequest) fetchChainBytecode(ctx context.Context) (string, e
 	return result.Result, nil
 }
 
-func (v *VerificationRequest) VerifyMetadata() (*SolcMetadata, error) {
-	util.Debug(v.Metadata)
+func (v *VerificationRequest) VerifyMetadata() (IMetadata, error) {
 	var metadata SolcMetadata
 	err := json.Unmarshal([]byte(v.Metadata), &metadata)
-	util.Debug(metadata)
 	if err != nil {
 		return nil, InvalidValidInputMetadata
 	}
@@ -48,6 +46,9 @@ func (v *VerificationRequest) VerifyMetadata() (*SolcMetadata, error) {
 		if source.Content == "" {
 			return nil, InvalidValidInputMetadata
 		}
+	}
+	if chainGroup[v.Chain].Revive {
+		return &ReviveMetadata{metadata}, nil
 	}
 	return &metadata, nil
 }
@@ -87,18 +88,14 @@ type Match struct {
 	ConstructorArgs string
 }
 
-func (v *VerificationRequest) compareBytecodes(ctx context.Context, deployedBytecode string, compiledOutput *SolcOutput) (*Match, error) {
-	// add library Address
-	withLibraries, _ := addLibraryAddresses(compiledOutput.PickDeployedBytesCode("", ""), deployedBytecode)
-
-	if util.TrimHex(withLibraries) == util.TrimHex(deployedBytecode) {
+func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecode string, compiledOutput *SolcOutput) (*Match, error) {
+	recompileDeployCodeWithLibraries := addLibraryAddresses(compiledOutput.PickDeployedBytesCode(compiledOutput.CompileTarget, compiledOutput.ContractName), chainBytecode).Replaced
+	if util.TrimHex(recompileDeployCodeWithLibraries) == util.TrimHex(chainBytecode) {
 		return &Match{Status: perfect}, nil
 	}
 
-	trimmedChainBytecode := util.TrimHex(BytecodeWithoutMetadata(deployedBytecode))
-	util.Logger().Info(fmt.Sprintf("trimmedChainBytecode: %s", trimmedChainBytecode))
-	trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(withLibraries))
-	util.Logger().Info(fmt.Sprintf("trimmedWithLibraries: %s", trimmedWithLibraries))
+	trimmedChainBytecode := util.TrimHex(BytecodeWithoutMetadata(chainBytecode))
+	trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(recompileDeployCodeWithLibraries))
 	if trimmedChainBytecode == util.TrimHex(trimmedWithLibraries) {
 		return &Match{Status: partial}, nil
 	}
@@ -111,12 +108,9 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, deployedByte
 
 		createData = util.TrimHex(createData)
 		if len(createData) > 0 {
-			withLibraries, _ = addLibraryAddresses(compiledOutput.PickDeployedBytesCode("", ""), createData)
-			encodedConstructorArgs := extractEncodedConstructorArgs(createData, withLibraries)
-			util.Logger().Info(fmt.Sprintf("createData: %s", createData))
-			util.Logger().Info(fmt.Sprintf("withLibraries: %s", withLibraries))
-
-			if strings.HasPrefix(createData, withLibraries) {
+			recompileBytesCodeWithLibraries := addLibraryAddresses(compiledOutput.PickBytesCode(compiledOutput.CompileTarget, compiledOutput.ContractName), createData).Replaced
+			encodedConstructorArgs := extractEncodedConstructorArgs(createData, recompileBytesCodeWithLibraries)
+			if strings.HasPrefix(createData, BytecodeWithoutMetadata(recompileBytesCodeWithLibraries)) {
 				return &Match{Status: perfect, ConstructorArgs: encodedConstructorArgs}, nil
 			}
 		}
@@ -125,24 +119,47 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, deployedByte
 	return &Match{Status: mismatch}, nil
 }
 
-func addLibraryAddresses(template, real string) (string, map[string]string) {
-	const PlaceholderStart = "__$"
-	const PlaceholderLength = 40
+type addLibraryAddressesResult struct {
+	Replaced   string
+	LibraryMap map[string]string
+}
 
+func addLibraryAddresses(template, real string) addLibraryAddressesResult {
+	const placeholderStart = "__$"
+	const placeholderLength = 40
 	libraryMap := make(map[string]string)
+	replaced := template
 
-	index := strings.Index(template, PlaceholderStart)
-	for index != -1 {
-		placeholder := template[index : index+PlaceholderLength]
-		address := real[index : index+PlaceholderLength]
+	for {
+		index := strings.Index(replaced, placeholderStart)
+		if index == -1 {
+			break
+		}
+		// Check if there's enough length left for a full placeholder
+		if index+placeholderLength > len(replaced) {
+			break
+		}
+		placeholder := replaced[index : index+placeholderLength]
+
+		// Ensure real has enough length at the current index
+		if index+placeholderLength > len(real) {
+			panic("real string length insufficient for placeholder")
+		}
+		address := real[index : index+placeholderLength]
+
+		// Store mapping
 		libraryMap[placeholder] = address
-		regexCompatiblePlaceholder := strings.ReplaceAll(strings.ReplaceAll(placeholder, "__$", "__\\$"), "$__", "\\$__")
-		regex := regexp.MustCompile(regexCompatiblePlaceholder)
-		template = regex.ReplaceAllString(template, address)
-		index = strings.Index(template, PlaceholderStart)
+
+		// Escape $ signs for regex
+		regexStr := strings.Replace(placeholder, "__$", "__\\$", -1)
+		regexStr = strings.Replace(regexStr, "$__", "\\$__", -1)
+
+		// Replace all occurrences
+		re := regexp.MustCompile(regexStr)
+		replaced = re.ReplaceAllString(replaced, address)
 	}
 
-	return template, libraryMap
+	return addLibraryAddressesResult{Replaced: replaced, LibraryMap: libraryMap}
 }
 
 func extractEncodedConstructorArgs(creationData string, compiledCreationBytecode string) string {
