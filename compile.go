@@ -22,6 +22,8 @@ type SolcMetadata struct {
 	Output   *SolcMetadataOutput `json:"output,omitempty"`
 	Compiler *map[string]string  `json:"compiler,omitempty"`
 	Version  *float64            `json:"version,omitempty"`
+	// ResolcVersion is used for pvm
+	ResolcVersion string `json:"resolc_version,omitempty"`
 }
 
 // Format removes the compiler and version fields from the metadata

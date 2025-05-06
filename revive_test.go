@@ -66,8 +66,10 @@ func Test_downloadLatestResolc(t *testing.T) {
 	defer mockServer.Close()
 
 	// Call the function with the mock server URL
-	fileName := downloadLatestResolc(mockServer.URL + "/repos/paritytech/revive/releases/latest")
-
+	fileName, tagName := downloadLatestResolc(mockServer.URL + "/repos/paritytech/revive/releases/latest")
+	if tagName != "v1.0.0" {
+		t.Fatalf("expected tag name to be v1.0.0, got %s", tagName)
+	}
 	// Check if the file was downloaded correctly
 	if runtime.GOOS == "darwin" && (fileName != "resolc-universal-apple-darwin.tar.gz" && fileName != "resolc-universal-apple-darwin") {
 		t.Fatalf("expected file name to be resolc-universal-apple-darwin.tar.gz, got %s", fileName)

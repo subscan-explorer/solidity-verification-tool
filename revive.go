@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -25,6 +26,9 @@ type ReviveMetadata struct {
 func (s *ReviveMetadata) recompileContract(_ context.Context, version string) (*SolcOutput, error) {
 	//  ./resolc --solc ./v0.8.17+commit.8df45f5f  --standard-json<example_input.json
 	solcPath := filepath.Join(SolcManagerInstance.cacheDir, "resolc")
+	if s.ResolcVersion != "" {
+		solcPath = filepath.Join(SolcManagerInstance.cacheDir, s.ResolcVersion)
+	}
 	cmd := exec.Command(solcPath, "--solc", filepath.Join(SolcManagerInstance.cacheDir, version), "--standard-json")
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
@@ -46,7 +50,7 @@ func (s *ReviveMetadata) recompileContract(_ context.Context, version string) (*
 	stdinPipe.Close()
 
 	if err = cmd.Wait(); err != nil {
-		return nil, fmt.Errorf(stderrBuf.String())
+		return nil, errors.New(stderrBuf.String())
 	}
 
 	if err = json.Unmarshal(stdoutBuf.Bytes(), &result); err != nil {
@@ -68,23 +72,23 @@ type Asset struct {
 	DownloadURL string `json:"browser_download_url"`
 }
 
-func download(tagName string) {
+func download(tag string) {
 	util.Logger().Info("Start downloading latest resolc binary")
 	const repo = "paritytech/revive"
 	var apiURL = fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", repo)
-	if tagName != "" {
-		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/releases/tags/%s", repo, tagName)
+	if tag != "" {
+		apiURL = fmt.Sprintf("https://api.github.com/repos/%s/releases/tags/%s", repo, tag)
 	}
-	fileName := downloadLatestResolc(apiURL)
+	fileName, tagName := downloadLatestResolc(apiURL)
 	var err error
 	if strings.HasSuffix(fileName, ".tar.gz") {
-		err = extractAndSetExec(fileName, "static", strings.Replace(fileName, ".tar.gz", "", 1), "resolc")
+		err = extractAndSetExec(fileName, "static", strings.Replace(fileName, ".tar.gz", "", 1), tagName)
 	} else {
 		err = os.Chmod(fileName, 0755)
 		if err != nil {
 			panic(err)
 		}
-		err = os.Rename(fileName, filepath.Join(SolcManagerInstance.cacheDir, "resolc"))
+		err = os.Rename(fileName, filepath.Join(SolcManagerInstance.cacheDir, tagName))
 	}
 
 	if err != nil {
@@ -92,7 +96,7 @@ func download(tagName string) {
 	}
 }
 
-func downloadLatestResolc(apiURL string) string {
+func downloadLatestResolc(apiURL string) (string, string) {
 	fileNames := []string{"resolc-x86_64-unknown-linux-musl", "resolc-x86_64-unknown-linux-musl.tar.gz"}
 	if runtime.GOOS == "darwin" {
 		fileNames = []string{"resolc-universal-apple-darwin", "resolc-universal-apple-darwin.tar.gz"}
@@ -152,7 +156,7 @@ func downloadLatestResolc(apiURL string) string {
 		panic(err)
 	}
 	util.Logger().Info("resolc download success")
-	return fileName
+	return fileName, release.TagName
 }
 
 // extractAndSetExec uncompresses the tar.gz file and sets the executable permission for the specified file
