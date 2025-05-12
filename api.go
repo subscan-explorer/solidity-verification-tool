@@ -34,6 +34,7 @@ type VerificationResponse struct {
 	Abi                    []interface{} `json:"abi,omitempty"`
 	CreationBytecodeLength int           `json:"creation_bytecode_length"`
 	ReviveVersion          string        `json:"revive_version,omitempty"`
+	ContractName           string        `json:"contract_name,omitempty"`
 }
 
 // https://ardislu.dev/solc-standard-json-input-from-metadata
@@ -105,6 +106,7 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 		Abi:                    compiledOutput.Contracts[compiledOutput.CompileTarget][compiledOutput.ContractName].Abi,
 		CreationBytecodeLength: len(compiledOutput.Contracts[compiledOutput.CompileTarget][compiledOutput.ContractName].Evm.Bytecode.Object),
 		ReviveVersion:          compiledOutput.ReviveVersion,
+		ContractName:           compiledOutput.ContractName,
 	})
 }
 
