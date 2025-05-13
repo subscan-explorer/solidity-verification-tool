@@ -173,6 +173,12 @@ func (s *SolcMetadata) recompileContract(_ context.Context, version string) (*So
 	if err = json.Unmarshal(stdoutBuf.Bytes(), &result); err != nil {
 		return nil, err
 	}
+	if result.CompileTarget == "" || result.ContractName == "" {
+		result.retryToFindCompileTarget()
+	}
+	if _, ok := result.Contracts[result.CompileTarget][result.ContractName]; !ok {
+		result.retryToFindCompileTarget()
+	}
 	return &result, nil
 }
 

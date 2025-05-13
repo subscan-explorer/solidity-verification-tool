@@ -59,6 +59,9 @@ func (s *ReviveMetadata) recompileContract(_ context.Context, version string) (*
 	if result.CompileTarget == "" || result.ContractName == "" {
 		result.retryToFindCompileTarget()
 	}
+	if _, ok := result.Contracts[result.CompileTarget][result.ContractName]; !ok {
+		result.retryToFindCompileTarget()
+	}
 	return &result, nil
 }
 
