@@ -146,5 +146,13 @@
     "contractFetchAddress": "https://assethub-westend.api.subscan.io/api/scan/evm/contract",
     "subscan": true,
     "revive": true
+  },
+  "420420418": {
+    "rpc": [
+      "https://kusama-asset-hub-eth-rpc.polkadot.io/"
+    ],
+    "contractFetchAddress": "https://assethub-kusama.api.subscan.io/api/scan/evm/contract",
+    "subscan": true,
+    "revive": true
   }
 }
