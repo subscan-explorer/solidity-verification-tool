@@ -154,5 +154,12 @@
     "contractFetchAddress": "https://assethub-kusama.api.subscan.io/api/scan/evm/contract",
     "subscan": true,
     "revive": true
+  },
+  "1409": {
+    "rpc": [
+      "https://vflow-rpc-subscan.zkverify.io/"
+    ],
+    "contractFetchAddress": "https://vflow-testnet.api.subscan.io/api/scan/evm/contract",
+    "subscan": true
   }
 }
