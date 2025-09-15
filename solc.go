@@ -51,8 +51,8 @@ func (sm *SolcManager) EnsureVersion(version string) error {
 
 const (
 	// github solc repo
-	GithubSolcRepoLinux = "https://github.com/ethereum/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-"
-	GithubSolcRepoMacos = "https://github.com/ethereum/solc-bin/raw/gh-pages/macosx-amd64/solc-macosx-amd64-"
+	GithubSolcRepoLinux = "https://github.com/argotorg/solc-bin/raw/gh-pages/linux-amd64/solc-linux-amd64-"
+	GithubSolcRepoMacos = "https://github.com/argotorg/solc-bin/raw/gh-pages/macosx-amd64/solc-macosx-amd64-"
 )
 
 func (sm *SolcManager) downloadSolc(version string) error {
