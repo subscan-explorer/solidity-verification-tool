@@ -161,5 +161,12 @@
     ],
     "contractFetchAddress": "https://vflow-testnet.api.subscan.io/api/scan/evm/contract",
     "subscan": true
+  },
+  "1408": {
+    "rpc": [
+      "https://vflow-rpc.zkverify.io"
+    ],
+    "contractFetchAddress": "https://vflow.api.subscan.io/api/scan/evm/contract",
+    "subscan": true
   }
 }
