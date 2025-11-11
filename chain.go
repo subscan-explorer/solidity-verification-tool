@@ -14,7 +14,9 @@ var (
 type ChainInfo struct {
 	Rpc                  []string `json:"rpc"`
 	ContractFetchAddress string   `json:"contractFetchAddress"`
-	Revive               bool     `json:"revive"`
+
+	// Deprecated, use metadata input instead
+	// Revive bool `json:"revive"`
 }
 
 // Read chains.json to get all supported chain information

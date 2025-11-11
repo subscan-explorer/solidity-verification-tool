@@ -47,7 +47,8 @@ func (v *VerificationRequest) VerifyMetadata() (IMetadata, error) {
 			return nil, InvalidValidInputMetadata
 		}
 	}
-	if chainGroup[v.Chain].Revive {
+	// detect if is revive metadata
+	if metadata.ResolcVersion != "" {
 		return &ReviveMetadata{metadata}, nil
 	}
 	return &metadata, nil
