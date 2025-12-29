@@ -175,5 +175,12 @@
     ],
     "contractFetchAddress": "https://passethub-paseo.api.subscan.io/api/scan/evm/contract",
     "subscan": true
+  },
+  "420420417": {
+    "rpc": [
+      "https://services.polkadothub-rpc.com/testnet"
+    ],
+    "contractFetchAddress": "https://assethub-paseo.api.subscan.io/api/scan/evm/contract",
+    "subscan": true
   }
 }
