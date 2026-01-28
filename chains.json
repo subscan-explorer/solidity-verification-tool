@@ -182,5 +182,12 @@
     ],
     "contractFetchAddress": "https://assethub-paseo.api.subscan.io/api/scan/evm/contract",
     "subscan": true
+  },
+  "420420419": {
+    "rpc": [
+      "https://services.polkadothub-rpc.com/mainnet"
+    ],
+    "contractFetchAddress": "https://assethub-polkadot.api.subscan.io/api/scan/evm/contract",
+    "subscan": true
   }
 }
