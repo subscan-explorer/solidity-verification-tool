@@ -105,7 +105,9 @@ Save your modified JSON file locally as `Standard-Input.json`.
 
 #### 1. Navigate to Contract Page
 
-* Go to the [Darwinia Subscan Contract Page](https://darwinia.subscan.io/verify_contract).
+* Go to the [Subscan Contract Verify Tool - Darwinia network as an example](https://darwinia.subscan.io/verify_contract).
+* in the Subscan explorer top navigation bar, select **Tools** → **Contract Verification Tool**.
+
 
 #### 2. Upload Configuration
 
@@ -116,6 +118,14 @@ Save your modified JSON file locally as `Standard-Input.json`.
 #### 3. Submit
 
 Click **Verify**. If the JSON format is correct and the compiled bytecode matches the on-chain bytecode, the verification will succeed.
+
+#### 4. View and Interact After Verification
+
+After verification succeeds, search the contract address on the target network and open the **Contract** tab to:
+* **View Code** (source + metadata)
+* Use **Read** and **Write** to interact with the contract
+* **Example:** : [Contract Detail page - Darwinia network as an example](https://darwinia.subscan.io/account/0x00000000001523057a05d6293c1e5171ee33ee0a?tab=contract)
+
 
 ---
 
@@ -131,3 +141,14 @@ Click **Verify**. If the JSON format is correct and the compiled bytecode matche
 ### 📚 References
 
 * [Solidity Compiler Input/Output JSON Description](https://docs.soliditylang.org/en/v0.5.8/using-the-compiler.html#compiler-input-and-output-json-description)
+
+
+### 📝 Need help?
+
+If you run into any issues, please reach out via:
+
+- **GitHub Issues (recommended):** Open an issue in this repository so we can track and improve the guide.
+- **Telegram:** https://t.me/+ldEA4oysskNiMzE1
+- **Email:** api@subscan.io
+
+> Security note: Please do not share private keys, seed phrases, or sensitive credentials in public issues or chats.
