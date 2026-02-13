@@ -92,7 +92,7 @@
   },
   "9990": {
     "rpc": [
-      "https://wss-async.agung.peaq.network"
+      "https://wss-async-agung.peaq.xyz"
     ],
     "contractFetchAddress": "https://agung-testnet.api.subscan.io/api/scan/evm/contract",
     "subscan": true
