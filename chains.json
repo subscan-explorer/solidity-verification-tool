@@ -157,7 +157,7 @@
   },
   "1409": {
     "rpc": [
-      "https://vflow-volta-rpc-subscan.zkverify.io/"
+      "https://vflow-volta-rpc.zkverify.io/"
     ],
     "contractFetchAddress": "https://vflow-testnet.api.subscan.io/api/scan/evm/contract",
     "subscan": true
