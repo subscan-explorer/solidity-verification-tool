@@ -70,11 +70,13 @@ func fetchCreateBytecode(ctx context.Context, address string, networkID int64) (
 	data, err := util.PostWithJson(ctx, []byte(fmt.Sprintf(`{"address":"%s"}`, address)), chain.ContractFetchAddress)
 
 	if err != nil {
+		util.Logger().Error(fmt.Errorf("fetch create bytecode failed for address %s on network %d: %v", address, networkID, err))
 		return "", err
 	}
 	var result SubscanRes
 	err = json.Unmarshal(data, &result)
 	if err != nil {
+		util.Logger().Error(fmt.Errorf("unmarshal create bytecode response failed for address %s on network %d: %v", address, networkID, err))
 		return "", err
 	}
 	if result.Code != 0 {
@@ -104,7 +106,7 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecod
 	if len(trimmedChainBytecode) == len(trimmedWithLibraries) {
 		createData, err := fetchCreateBytecode(ctx, v.Address, v.Chain)
 		if err != nil {
-			return &Match{Status: mismatch}, err
+			return &Match{Status: mismatch}, fmt.Errorf("fetch create bytecode failed: please retry later")
 		}
 
 		createData = util.TrimHex(createData)

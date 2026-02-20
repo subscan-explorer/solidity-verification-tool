@@ -129,7 +129,7 @@
     "rpc": [
       "https://rpc.hydradx.cloud/"
     ],
-    "contractFetchAddress": "https://hydradx.api.subscan.io/api/scan/evm/contract",
+    "contractFetchAddress": "https://hydration.api.subscan.io/api/scan/evm/contract",
     "subscan": true
   },
   "996": {
