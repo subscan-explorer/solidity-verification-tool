@@ -95,40 +95,6 @@ type SolcOutput struct {
 	CompileTarget string
 }
 
-func (o *SolcOutput) PickDeployedBytesCode(compileTarget, contractName string) string {
-	if compileTarget == "" {
-		for target := range o.Contracts {
-			for name := range o.Contracts[target] {
-				return o.Contracts[target][name].Evm.DeployedBytecode.Object
-			}
-		}
-	}
-	return o.Contracts[compileTarget][contractName].Evm.DeployedBytecode.Object
-}
-
-func (o *SolcOutput) PickBytesCode(compileTarget, contractName string) string {
-	if compileTarget == "" {
-		for target := range o.Contracts {
-			for name := range o.Contracts[target] {
-				return o.Contracts[target][name].Evm.Bytecode.Object
-			}
-		}
-	}
-	return o.Contracts[compileTarget][contractName].Evm.Bytecode.Object
-}
-
-func (o *SolcOutput) retryToFindCompileTarget() {
-	for target := range o.Contracts {
-		for contractName, source := range o.Contracts[target] {
-			if source.Evm.Bytecode.Object != "" {
-				o.CompileTarget = target
-				o.ContractName = contractName
-				return
-			}
-		}
-	}
-}
-
 type SolcContract struct {
 	Abi []any `json:"abi"`
 	Evm struct {
@@ -172,12 +138,6 @@ func (s *SolcMetadata) recompileContract(_ context.Context, version string) (*So
 
 	if err = json.Unmarshal(stdoutBuf.Bytes(), &result); err != nil {
 		return nil, err
-	}
-	if result.CompileTarget == "" || result.ContractName == "" {
-		result.retryToFindCompileTarget()
-	}
-	if _, ok := result.Contracts[result.CompileTarget][result.ContractName]; !ok {
-		result.retryToFindCompileTarget()
 	}
 	return &result, nil
 }

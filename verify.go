@@ -92,32 +92,48 @@ type Match struct {
 }
 
 func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecode string, compiledOutput *SolcOutput) (*Match, error) {
-	recompileDeployCodeWithLibraries := addLibraryAddresses(compiledOutput.PickDeployedBytesCode(compiledOutput.CompileTarget, compiledOutput.ContractName), chainBytecode).Replaced
-	if util.TrimHex(recompileDeployCodeWithLibraries) == util.TrimHex(chainBytecode) {
-		return &Match{Status: perfect}, nil
-	}
-
 	trimmedChainBytecode := util.TrimHex(BytecodeWithoutMetadata(chainBytecode))
-	trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(recompileDeployCodeWithLibraries))
-	if trimmedChainBytecode == util.TrimHex(trimmedWithLibraries) {
-		return &Match{Status: partial}, nil
-	}
+	trimmedRawChainBytecode := util.TrimHex(chainBytecode)
+	createData := ""
+	fetchedCreateData := false
 
-	if len(trimmedChainBytecode) == len(trimmedWithLibraries) {
-		createData, err := fetchCreateBytecode(ctx, v.Address, v.Chain)
-		if err != nil {
-			return &Match{Status: mismatch}, fmt.Errorf("fetch create bytecode failed: please retry later")
-		}
+	for compileTarget, contracts := range compiledOutput.Contracts {
+		for contractName, contract := range contracts {
+			recompileDeployCodeWithLibraries := addLibraryAddresses(contract.Evm.DeployedBytecode.Object, chainBytecode).Replaced
+			if util.TrimHex(recompileDeployCodeWithLibraries) == trimmedRawChainBytecode {
+				compiledOutput.CompileTarget = compileTarget
+				compiledOutput.ContractName = contractName
+				return &Match{Status: perfect}, nil
+			}
 
-		createData = util.TrimHex(createData)
-		if len(createData) > 0 {
-			recompileBytesCodeWithLibraries := addLibraryAddresses(compiledOutput.PickBytesCode(compiledOutput.CompileTarget, compiledOutput.ContractName), createData).Replaced
-			encodedConstructorArgs := extractEncodedConstructorArgs(createData, recompileBytesCodeWithLibraries)
-			if strings.HasPrefix(createData, BytecodeWithoutMetadata(recompileBytesCodeWithLibraries)) {
-				return &Match{Status: perfect, ConstructorArgs: encodedConstructorArgs}, nil
+			trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(recompileDeployCodeWithLibraries))
+			if trimmedChainBytecode == trimmedWithLibraries {
+				compiledOutput.CompileTarget = compileTarget
+				compiledOutput.ContractName = contractName
+				return &Match{Status: partial}, nil
+			}
+
+			if len(trimmedChainBytecode) == len(trimmedWithLibraries) {
+				if !fetchedCreateData {
+					var err error
+					createData, err = fetchCreateBytecode(ctx, v.Address, v.Chain)
+					if err != nil {
+						return &Match{Status: mismatch}, fmt.Errorf("fetch create bytecode failed: please retry later")
+					}
+					createData = util.TrimHex(createData)
+					fetchedCreateData = true
+				}
+				if len(createData) > 0 {
+					recompileBytesCodeWithLibraries := addLibraryAddresses(contract.Evm.Bytecode.Object, createData).Replaced
+					encodedConstructorArgs := extractEncodedConstructorArgs(createData, recompileBytesCodeWithLibraries)
+					if strings.HasPrefix(createData, BytecodeWithoutMetadata(recompileBytesCodeWithLibraries)) {
+						compiledOutput.CompileTarget = compileTarget
+						compiledOutput.ContractName = contractName
+						return &Match{Status: perfect, ConstructorArgs: encodedConstructorArgs}, nil
+					}
+				}
 			}
 		}
-
 	}
 	return &Match{Status: mismatch}, nil
 }
