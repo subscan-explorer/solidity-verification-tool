@@ -57,6 +57,7 @@ type SolcMetadataSetting struct {
 		Runs    int  `json:"runs"`
 	} `json:"optimizer"`
 	EvmVersion        string                 `json:"evmVersion,omitempty"`
+	EOFVersion        *int                   `json:"eofVersion,omitempty"`
 	Libraries         map[string]interface{} `json:"libraries,omitempty"`
 	Metadata          map[string]interface{} `json:"metadata,omitempty"`
 	CompilationTarget map[string]string      `json:"compilationTarget,omitempty"`

@@ -163,6 +163,44 @@ func Test_Metadata(t *testing.T) {
 
 }
 
+func Test_MetadataPreservesEOFVersion(t *testing.T) {
+	req := VerificationRequest{Metadata: `{
+  "language": "Solidity",
+  "settings": {
+    "evmVersion": "osaka",
+    "eofVersion": 1,
+    "libraries": {},
+    "remappings": [],
+    "compilationTarget": {
+      "contracts/new.sol": "YourContract"
+    }
+  },
+  "sources": {
+    "contracts/new.sol": {
+      "content": "pragma solidity ^0.8.29;\ncontract YourContract {\n    function foo() public pure returns (uint256) {\n        return 42;\n    }\n}"
+    }
+  }
+}`}
+
+	input, err := req.VerifyMetadata()
+	if err != nil {
+		t.Fatalf("VerifyMetadata failed: %v", err)
+	}
+
+	metadata, ok := input.(*SolcMetadata)
+	if !ok {
+		t.Fatalf("expected SolcMetadata, got %T", input)
+	}
+	if metadata.Settings.EOFVersion == nil || *metadata.Settings.EOFVersion != 1 {
+		t.Fatalf("expected eofVersion to be parsed")
+	}
+
+	formatted := metadata.String()
+	if !bytes.Contains([]byte(formatted), []byte(`"eofVersion":1`)) {
+		t.Fatalf("expected eofVersion to be preserved in formatted metadata: %s", formatted)
+	}
+}
+
 func Test_MultifileCompile(t *testing.T) {
 	file, err := os.Open("static/ORMP_metadata.json")
 	if err != nil {
