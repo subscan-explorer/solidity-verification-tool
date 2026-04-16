@@ -52,14 +52,14 @@
     "rpc": [
       "https://astrosat-parachain-rpc.origin-trail.network"
     ],
-    "contractFetchAddress": "https://origintrail.api.subscan.io/api/scan/evm/contract",
+    "contractFetchAddress": "https://neuroweb.api.subscan.io/api/scan/evm/contract",
     "subscan": true
   },
   "20430": {
     "rpc": [
       "https://lofar-testnet.origin-trail.network"
     ],
-    "contractFetchAddress": "https://origintrail-testnet.api.subscan.io/api/scan/evm/contract",
+    "contractFetchAddress": "https://neuroweb-testnet.api.subscan.io/api/scan/evm/contract",
     "subscan": true
   },
   "424242": {
@@ -167,13 +167,6 @@
       "https://vflow-rpc.zkverify.io"
     ],
     "contractFetchAddress": "https://vflow.api.subscan.io/api/scan/evm/contract",
-    "subscan": true
-  },
-  "420420422": {
-    "rpc": [
-      "https://testnet-passet-hub-eth-rpc.polkadot.io"
-    ],
-    "contractFetchAddress": "https://passethub-paseo.api.subscan.io/api/scan/evm/contract",
     "subscan": true
   },
   "420420417": {

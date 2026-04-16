@@ -7,13 +7,18 @@ import (
 	"net/http"
 )
 
-func PostWithJson(ctx context.Context, data []byte, endpoint string) ([]byte, error) {
+func PostWithJson(ctx context.Context, data []byte, endpoint string, headers ...map[string]string) ([]byte, error) {
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if len(headers) > 0 {
+		for key, value := range headers[0] {
+			req.Header.Set(key, value)
+		}
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err

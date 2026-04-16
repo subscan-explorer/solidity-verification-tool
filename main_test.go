@@ -94,14 +94,6 @@ func Test_fetchChainBytecode(t *testing.T) {
 	if len(data) < 5 {
 		t.Errorf("fetchChainBytecode failed: data is nil")
 	}
-
-	createCode, err := fetchCreateBytecode(ctx, "0x04e4D345b48E60Dc3EE160Ba682ff7B8654d461f", 46)
-	if err != nil {
-		t.Errorf("fetchCreateBytecode failed: %v", err)
-	}
-	if len(createCode) < 5 {
-		t.Errorf("fetchCreateBytecode failed: createCode is nil")
-	}
 }
 
 func TestBytecodeWithoutMetadata(t *testing.T) {

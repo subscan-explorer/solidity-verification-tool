@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"os"
 	"regexp"
 	"strings"
 	"verify-golang/util"
@@ -67,7 +68,12 @@ func fetchCreateBytecode(ctx context.Context, address string, networkID int64) (
 	if !ok {
 		return "", fmt.Errorf("network %d not supported", networkID)
 	}
-	data, err := util.PostWithJson(ctx, []byte(fmt.Sprintf(`{"address":"%s"}`, address)), chain.ContractFetchAddress)
+	headers := map[string]string{}
+	if apiKey := strings.TrimSpace(os.Getenv("SUBSCAN_API_KEY")); apiKey != "" {
+		headers["X-API-Key"] = apiKey
+	}
+
+	data, err := util.PostWithJson(ctx, []byte(fmt.Sprintf(`{"address":"%s"}`, address)), chain.ContractFetchAddress, headers)
 
 	if err != nil {
 		util.Logger().Error(fmt.Errorf("fetch create bytecode failed for address %s on network %d: %v", address, networkID, err))
