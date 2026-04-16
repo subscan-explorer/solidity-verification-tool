@@ -46,6 +46,17 @@ go run main.go
 curl -X POST -H "Content-Type: application/json" -d '{"metadata": {...}, "compilerVersion": "v0.8.26+commit.8a97fa7a","chain":46,"address":"xxxx"}' http://localhost:8081/verify
 ```
 
+Example EOF metadata fragment:
+
+```json
+{
+  "settings": {
+    "evmVersion": "osaka",
+    "eofVersion": 1
+  }
+}
+```
+
 ## Revive support
 
 Building Solidity contracts for PolkaVM requires installing extra dependencies. To install revive, run the following command:
