@@ -8,6 +8,7 @@ bytecode.
 - Recompiles Solidity smart contracts using a specified compiler version.
 - Compares the on-chain bytecode with the recompiled bytecode.
 - Provides detailed error messages if verification fails.
+- Preserves metadata settings such as `evmVersion` and `eofVersion` when recompiling.
 - Polkadot revive(https://github.com/paritytech/revive) support.
 - No dependency on external services or third-party libraries.
 
@@ -39,9 +40,21 @@ go run main.go
 ```
 
 2. Send a POST request to `/verify` with the contract metadata and compiler version.
+   If the contract was compiled for EOF, include `settings.eofVersion` in the metadata JSON.
 
 ```sh
 curl -X POST -H "Content-Type: application/json" -d '{"metadata": {...}, "compilerVersion": "v0.8.26+commit.8a97fa7a","chain":46,"address":"xxxx"}' http://localhost:8081/verify
+```
+
+Example EOF metadata fragment:
+
+```json
+{
+  "settings": {
+    "evmVersion": "osaka",
+    "eofVersion": 1
+  }
+}
 ```
 
 ## Revive support
