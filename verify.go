@@ -97,29 +97,41 @@ type Match struct {
 	ConstructorArgs string
 }
 
+// normalizeConstructorArgs canonicalizes user-supplied constructor arguments to a comparable hex form.
+func normalizeConstructorArgs(value string) string {
+	value = util.TrimHex(strings.TrimSpace(value))
+	if value == "" {
+		return ""
+	}
+	return util.AddHex(strings.ToLower(value))
+}
+
 func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecode string, compiledOutput *SolcOutput) (*Match, error) {
 	trimmedChainBytecode := util.TrimHex(BytecodeWithoutMetadata(chainBytecode))
 	trimmedRawChainBytecode := util.TrimHex(chainBytecode)
+	requestedConstructorArgs := normalizeConstructorArgs(v.ConstructorArgs)
 	createData := ""
 	fetchedCreateData := false
 
 	for compileTarget, contracts := range compiledOutput.Contracts {
 		for contractName, contract := range contracts {
+			matchedStatus := ""
 			recompileDeployCodeWithLibraries := addLibraryAddresses(contract.Evm.DeployedBytecode.Object, chainBytecode).Replaced
 			if util.TrimHex(recompileDeployCodeWithLibraries) == trimmedRawChainBytecode {
-				compiledOutput.CompileTarget = compileTarget
-				compiledOutput.ContractName = contractName
-				return &Match{Status: perfect}, nil
+				matchedStatus = perfect
 			}
 
 			trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(recompileDeployCodeWithLibraries))
 			if trimmedChainBytecode == trimmedWithLibraries {
+				matchedStatus = partial
+			}
+			if matchedStatus != "" && requestedConstructorArgs == "" {
 				compiledOutput.CompileTarget = compileTarget
 				compiledOutput.ContractName = contractName
-				return &Match{Status: partial}, nil
+				return &Match{Status: matchedStatus}, nil
 			}
 
-			if len(trimmedChainBytecode) == len(trimmedWithLibraries) {
+			if matchedStatus != "" || len(trimmedChainBytecode) == len(trimmedWithLibraries) {
 				if !fetchedCreateData {
 					var err error
 					createData, err = fetchCreateBytecode(ctx, v.Address, v.Chain)
@@ -131,10 +143,19 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecod
 				}
 				if len(createData) > 0 {
 					recompileBytesCodeWithLibraries := addLibraryAddresses(contract.Evm.Bytecode.Object, createData).Replaced
-					encodedConstructorArgs := extractEncodedConstructorArgs(createData, recompileBytesCodeWithLibraries)
 					if strings.HasPrefix(createData, BytecodeWithoutMetadata(recompileBytesCodeWithLibraries)) {
 						compiledOutput.CompileTarget = compileTarget
 						compiledOutput.ContractName = contractName
+						encodedConstructorArgs := normalizeConstructorArgs(extractEncodedConstructorArgs(createData, recompileBytesCodeWithLibraries))
+						if requestedConstructorArgs != "" {
+							if strings.EqualFold(util.TrimHex(encodedConstructorArgs), util.TrimHex(requestedConstructorArgs)) {
+								if matchedStatus == "" {
+									matchedStatus = perfect
+								}
+								return &Match{Status: matchedStatus, ConstructorArgs: requestedConstructorArgs}, nil
+							}
+							continue
+						}
 						return &Match{Status: perfect, ConstructorArgs: encodedConstructorArgs}, nil
 					}
 				}

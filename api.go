@@ -26,6 +26,7 @@ type VerificationRequest struct {
 	Metadata        string `json:"metadata"`
 	Chain           int64  `json:"chain"`
 	CompilerVersion string `json:"compilerVersion"`
+	ConstructorArgs string `json:"constructorArgs,omitempty"`
 }
 
 type VerificationResponse struct {
@@ -35,6 +36,7 @@ type VerificationResponse struct {
 	CreationBytecodeLength int           `json:"creation_bytecode_length"`
 	ReviveVersion          string        `json:"revive_version,omitempty"`
 	ContractName           string        `json:"contract_name,omitempty"`
+	ConstructorArguments   string        `json:"constructor_arguments,omitempty"`
 }
 
 // https://ardislu.dev/solc-standard-json-input-from-metadata
@@ -107,6 +109,7 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 		CreationBytecodeLength: len(compiledOutput.Contracts[compiledOutput.CompileTarget][compiledOutput.ContractName].Evm.Bytecode.Object),
 		ReviveVersion:          compiledOutput.ReviveVersion,
 		ContractName:           compiledOutput.ContractName,
+		ConstructorArguments:   verified.ConstructorArgs,
 	})
 }
 
