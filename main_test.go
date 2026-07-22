@@ -193,6 +193,44 @@ func Test_MetadataPreservesEOFVersion(t *testing.T) {
 	}
 }
 
+func Test_MetadataPreservesViaIR(t *testing.T) {
+	req := VerificationRequest{Metadata: `{
+  "language": "Solidity",
+  "settings": {
+    "evmVersion": "london",
+    "viaIR": true,
+    "libraries": {},
+    "remappings": [],
+    "compilationTarget": {
+      "contracts/new.sol": "YourContract"
+    }
+  },
+  "sources": {
+    "contracts/new.sol": {
+      "content": "pragma solidity ^0.8.28;\ncontract YourContract {\n    function foo() public pure returns (uint256) {\n        return 42;\n    }\n}"
+    }
+  }
+}`}
+
+	input, err := req.VerifyMetadata()
+	if err != nil {
+		t.Fatalf("VerifyMetadata failed: %v", err)
+	}
+
+	metadata, ok := input.(*SolcMetadata)
+	if !ok {
+		t.Fatalf("expected SolcMetadata, got %T", input)
+	}
+	if !metadata.Settings.ViaIR {
+		t.Fatal("expected viaIR to be parsed")
+	}
+
+	formatted := metadata.String()
+	if !bytes.Contains([]byte(formatted), []byte(`"viaIR":true`)) {
+		t.Fatalf("expected viaIR to be preserved in formatted metadata: %s", formatted)
+	}
+}
+
 func Test_MultifileCompile(t *testing.T) {
 	file, err := os.Open("static/ORMP_metadata.json")
 	if err != nil {

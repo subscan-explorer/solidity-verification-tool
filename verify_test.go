@@ -142,6 +142,62 @@ func TestCompareBytecodesMasksImmutableReferencesAndIgnoresMetadata(t *testing.T
 	}
 }
 
+func TestCompareBytecodesAllowsConstructorArgsWhenCreationCodeUnavailable(t *testing.T) {
+	const constructorArgs = "0000000000000000000000000000000000000000000000000000000000000049"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"code":0,"data":{"creation_code":""},"message":"Success"}`))
+	}))
+	defer server.Close()
+
+	req := &VerificationRequest{
+		Address:         "0xd633d8d1ceee8c8252196d44857c0f41b8dcb0d9",
+		Chain:           222222,
+		CompilerVersion: "v0.8.28",
+		ConstructorArgs: constructorArgs,
+	}
+	oldChainGroup := chainGroup
+	chainGroup = map[int64]ChainInfo{
+		222222: {
+			ContractFetchAddress: server.URL,
+		},
+	}
+	t.Cleanup(func() {
+		chainGroup = oldChainGroup
+	})
+
+	compiled := &SolcOutput{
+		Contracts: map[string]map[string]SolcContract{
+			"Executor.sol": {
+				"Executor": {
+					Evm: SolcEVMOutput{
+						Bytecode: SolcBytecode{Object: "6000"},
+						DeployedBytecode: SolcBytecode{
+							Object: "6000600056ccdd0002",
+							ImmutableReferences: ImmutableReferences{
+								"3": {
+									{Start: 1, Length: 1},
+									{Start: 3, Length: 1},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	match, err := req.compareBytecodes(context.Background(), "0x6049604956aabb0002", compiled)
+	if err != nil {
+		t.Fatalf("compareBytecodes returned error: %v", err)
+	}
+	if match.Status != partial {
+		t.Fatalf("expected partial match, got %q", match.Status)
+	}
+	if match.ConstructorArgs != "0x"+constructorArgs {
+		t.Fatalf("expected constructor args %q, got %q", "0x"+constructorArgs, match.ConstructorArgs)
+	}
+}
+
 func TestMatchDeployedBytecodeMasksImmutableReferencesWithMatchingMetadata(t *testing.T) {
 	status := matchDeployedBytecode("0x6049604956aabb0002", "6000600056aabb0002", ImmutableReferences{
 		"3": {

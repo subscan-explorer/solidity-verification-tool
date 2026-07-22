@@ -151,6 +151,10 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecod
 						}
 						return &Match{Status: perfect, ConstructorArgs: encodedConstructorArgs}, nil
 					}
+				} else if matchedStatus != "" && requestedConstructorArgs != "" {
+					compiledOutput.CompileTarget = compileTarget
+					compiledOutput.ContractName = contractName
+					return &Match{Status: matchedStatus, ConstructorArgs: requestedConstructorArgs}, nil
 				}
 			}
 		}
