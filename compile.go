@@ -97,16 +97,26 @@ type SolcOutput struct {
 }
 
 type SolcContract struct {
-	Abi []any `json:"abi"`
-	Evm struct {
-		Bytecode struct {
-			Object string `json:"object"`
-		} `json:"bytecode"`
-		DeployedBytecode struct {
-			Object string `json:"object"`
-		}
-	} `json:"evm"`
-	Metadata any `json:"metadata,omitempty"`
+	Abi      []any         `json:"abi"`
+	Evm      SolcEVMOutput `json:"evm"`
+	Metadata any           `json:"metadata,omitempty"`
+}
+
+type SolcEVMOutput struct {
+	Bytecode         SolcBytecode `json:"bytecode"`
+	DeployedBytecode SolcBytecode `json:"deployedBytecode"`
+}
+
+type SolcBytecode struct {
+	Object              string              `json:"object"`
+	ImmutableReferences ImmutableReferences `json:"immutableReferences,omitempty"`
+}
+
+type ImmutableReferences map[string][]ImmutableReference
+
+type ImmutableReference struct {
+	Start  int `json:"start"`
+	Length int `json:"length"`
 }
 
 func (s *SolcMetadata) recompileContract(_ context.Context, version string) (*SolcOutput, error) {

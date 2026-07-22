@@ -115,16 +115,9 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecod
 
 	for compileTarget, contracts := range compiledOutput.Contracts {
 		for contractName, contract := range contracts {
-			matchedStatus := ""
-			recompileDeployCodeWithLibraries := addLibraryAddresses(contract.Evm.DeployedBytecode.Object, chainBytecode).Replaced
-			if util.TrimHex(recompileDeployCodeWithLibraries) == trimmedRawChainBytecode {
-				matchedStatus = perfect
-			}
-
+			recompileDeployCodeWithLibraries := addLibraryAddresses(contract.Evm.DeployedBytecode.Object, trimmedRawChainBytecode).Replaced
+			matchedStatus := matchDeployedBytecode(trimmedRawChainBytecode, recompileDeployCodeWithLibraries, contract.Evm.DeployedBytecode.ImmutableReferences)
 			trimmedWithLibraries := util.TrimHex(BytecodeWithoutMetadata(recompileDeployCodeWithLibraries))
-			if trimmedChainBytecode == trimmedWithLibraries {
-				matchedStatus = partial
-			}
 			if matchedStatus != "" && requestedConstructorArgs == "" {
 				compiledOutput.CompileTarget = compileTarget
 				compiledOutput.ContractName = contractName
@@ -143,7 +136,7 @@ func (v *VerificationRequest) compareBytecodes(ctx context.Context, chainBytecod
 				}
 				if len(createData) > 0 {
 					recompileBytesCodeWithLibraries := addLibraryAddresses(contract.Evm.Bytecode.Object, createData).Replaced
-					if strings.HasPrefix(createData, BytecodeWithoutMetadata(recompileBytesCodeWithLibraries)) {
+					if creationBytecodeMatches(createData, recompileBytesCodeWithLibraries) {
 						compiledOutput.CompileTarget = compileTarget
 						compiledOutput.ContractName = contractName
 						encodedConstructorArgs := normalizeConstructorArgs(extractEncodedConstructorArgs(createData, recompileBytesCodeWithLibraries))
@@ -175,6 +168,7 @@ func addLibraryAddresses(template, real string) addLibraryAddressesResult {
 	const placeholderLength = 40
 	libraryMap := make(map[string]string)
 	replaced := template
+	real = util.TrimHex(real)
 
 	for {
 		index := strings.Index(replaced, placeholderStart)
@@ -208,10 +202,98 @@ func addLibraryAddresses(template, real string) addLibraryAddressesResult {
 	return addLibraryAddressesResult{Replaced: replaced, LibraryMap: libraryMap}
 }
 
-func extractEncodedConstructorArgs(creationData string, compiledCreationBytecode string) string {
-	startIndex := strings.Index(creationData, compiledCreationBytecode)
-	if len(creationData) <= startIndex+len(compiledCreationBytecode) {
+func matchDeployedBytecode(chainBytecode, compiledBytecode string, immutableReferences ImmutableReferences) string {
+	chainBytecode = strings.ToLower(util.TrimHex(chainBytecode))
+	compiledBytecode = strings.ToLower(util.TrimHex(compiledBytecode))
+	if chainBytecode == compiledBytecode {
+		return perfect
+	}
+
+	chainRuntime := strings.ToLower(util.TrimHex(BytecodeWithoutMetadata(chainBytecode)))
+	compiledRuntime := strings.ToLower(util.TrimHex(BytecodeWithoutMetadata(compiledBytecode)))
+	if chainRuntime == compiledRuntime {
+		return partial
+	}
+
+	maskedChainBytecode, maskedCompiledBytecode, ok := maskImmutableReferences(chainBytecode, compiledBytecode, immutableReferences)
+	if !ok {
 		return ""
 	}
-	return "0x" + creationData[startIndex+len(compiledCreationBytecode):]
+	if maskedChainBytecode == maskedCompiledBytecode {
+		return perfect
+	}
+	if strings.ToLower(util.TrimHex(BytecodeWithoutMetadata(maskedChainBytecode))) ==
+		strings.ToLower(util.TrimHex(BytecodeWithoutMetadata(maskedCompiledBytecode))) {
+		return partial
+	}
+	return ""
+}
+
+func maskImmutableReferences(chainBytecode, compiledBytecode string, immutableReferences ImmutableReferences) (string, string, bool) {
+	if len(immutableReferences) == 0 {
+		return chainBytecode, compiledBytecode, false
+	}
+
+	chainBytes := []byte(strings.ToLower(util.TrimHex(chainBytecode)))
+	compiledBytes := []byte(strings.ToLower(util.TrimHex(compiledBytecode)))
+	masked := false
+
+	for _, references := range immutableReferences {
+		for _, reference := range references {
+			if reference.Start < 0 || reference.Length <= 0 {
+				continue
+			}
+			start := reference.Start * 2
+			end := start + reference.Length*2
+			if start < 0 || end < start || end > len(chainBytes) || end > len(compiledBytes) {
+				continue
+			}
+			for i := start; i < end; i++ {
+				chainBytes[i] = '0'
+				compiledBytes[i] = '0'
+			}
+			masked = true
+		}
+	}
+
+	return string(chainBytes), string(compiledBytes), masked
+}
+
+func creationBytecodeMatches(creationData string, compiledCreationBytecode string) bool {
+	creationData = strings.ToLower(util.TrimHex(creationData))
+	compiledCreationBytecode = strings.ToLower(util.TrimHex(compiledCreationBytecode))
+	if compiledCreationBytecode == "" {
+		return false
+	}
+	if strings.HasPrefix(creationData, compiledCreationBytecode) {
+		return true
+	}
+
+	compiledWithoutMetadata := strings.ToLower(util.TrimHex(BytecodeWithoutMetadata(compiledCreationBytecode)))
+	if compiledWithoutMetadata == "" {
+		return false
+	}
+	return strings.HasPrefix(creationData, compiledWithoutMetadata)
+}
+
+func extractEncodedConstructorArgs(creationData string, compiledCreationBytecode string) string {
+	creationData = strings.ToLower(util.TrimHex(creationData))
+	compiledCreationBytecode = strings.ToLower(util.TrimHex(compiledCreationBytecode))
+	if compiledCreationBytecode == "" {
+		return ""
+	}
+	if strings.HasPrefix(creationData, compiledCreationBytecode) {
+		return util.AddHex(creationData[len(compiledCreationBytecode):])
+	}
+
+	compiledWithoutMetadata := strings.ToLower(util.TrimHex(BytecodeWithoutMetadata(compiledCreationBytecode)))
+	if !strings.HasPrefix(creationData, compiledWithoutMetadata) {
+		return ""
+	}
+	metadataLength := len(compiledCreationBytecode) - len(compiledWithoutMetadata)
+	constructorArgsStart := len(compiledWithoutMetadata) + metadataLength
+	if constructorArgsStart > len(creationData) {
+		return ""
+	}
+	return util.AddHex(creationData[constructorArgsStart:])
 }

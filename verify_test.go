@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -85,20 +86,9 @@ func TestCompareBytecodesUsesProvidedConstructorArgs(t *testing.T) {
 		Contracts: map[string]map[string]SolcContract{
 			"Token.sol": {
 				"Token": {
-					Evm: struct {
-						Bytecode struct {
-							Object string "json:\"object\""
-						} "json:\"bytecode\""
-						DeployedBytecode struct {
-							Object string "json:\"object\""
-						}
-					}{
-						Bytecode: struct {
-							Object string "json:\"object\""
-						}{Object: "6000"},
-						DeployedBytecode: struct {
-							Object string "json:\"object\""
-						}{Object: "6000"},
+					Evm: SolcEVMOutput{
+						Bytecode:         SolcBytecode{Object: "6000"},
+						DeployedBytecode: SolcBytecode{Object: "6000"},
 					},
 				},
 			},
@@ -114,5 +104,108 @@ func TestCompareBytecodesUsesProvidedConstructorArgs(t *testing.T) {
 	}
 	if match.ConstructorArgs != "0x"+strings.ToLower(constructorArgs) {
 		t.Fatalf("expected constructor args %q, got %q", "0x"+strings.ToLower(constructorArgs), match.ConstructorArgs)
+	}
+}
+
+func TestCompareBytecodesMasksImmutableReferencesAndIgnoresMetadata(t *testing.T) {
+	req := &VerificationRequest{}
+	compiled := &SolcOutput{
+		Contracts: map[string]map[string]SolcContract{
+			"Executor.sol": {
+				"Executor": {
+					Evm: SolcEVMOutput{
+						Bytecode: SolcBytecode{Object: "6000"},
+						DeployedBytecode: SolcBytecode{
+							Object: "6000600056ccdd0002",
+							ImmutableReferences: ImmutableReferences{
+								"3": {
+									{Start: 1, Length: 1},
+									{Start: 3, Length: 1},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	match, err := req.compareBytecodes(context.Background(), "0x6049604956aabb0002", compiled)
+	if err != nil {
+		t.Fatalf("compareBytecodes returned error: %v", err)
+	}
+	if match.Status != partial {
+		t.Fatalf("expected partial match, got %q", match.Status)
+	}
+	if compiled.CompileTarget != "Executor.sol" || compiled.ContractName != "Executor" {
+		t.Fatalf("expected compile target Executor.sol:Executor, got %s:%s", compiled.CompileTarget, compiled.ContractName)
+	}
+}
+
+func TestMatchDeployedBytecodeMasksImmutableReferencesWithMatchingMetadata(t *testing.T) {
+	status := matchDeployedBytecode("0x6049604956aabb0002", "6000600056aabb0002", ImmutableReferences{
+		"3": {
+			{Start: 1, Length: 1},
+			{Start: 3, Length: 1},
+		},
+	})
+	if status != perfect {
+		t.Fatalf("expected perfect match, got %q", status)
+	}
+}
+
+func TestMatchDeployedBytecodeRejectsNonImmutableDifference(t *testing.T) {
+	status := matchDeployedBytecode("0x6049614956aabb0002", "6000600056ccdd0002", ImmutableReferences{
+		"3": {
+			{Start: 1, Length: 1},
+			{Start: 3, Length: 1},
+		},
+	})
+	if status != "" {
+		t.Fatalf("expected mismatch, got %q", status)
+	}
+}
+
+func TestSolcOutputParsesImmutableReferences(t *testing.T) {
+	var output SolcOutput
+	err := json.Unmarshal([]byte(`{
+		"contracts": {
+			"Executor.sol": {
+				"Executor": {
+					"evm": {
+						"deployedBytecode": {
+							"object": "6000",
+							"immutableReferences": {
+								"3": [
+									{"start": 454, "length": 2},
+									{"start": 823, "length": 2}
+								]
+							}
+						}
+					}
+				}
+			}
+		}
+	}`), &output)
+	if err != nil {
+		t.Fatalf("unmarshal solc output: %v", err)
+	}
+
+	references := output.Contracts["Executor.sol"]["Executor"].Evm.DeployedBytecode.ImmutableReferences["3"]
+	if len(references) != 2 {
+		t.Fatalf("expected 2 immutable references, got %d", len(references))
+	}
+	if references[0].Start != 454 || references[0].Length != 2 || references[1].Start != 823 || references[1].Length != 2 {
+		t.Fatalf("unexpected immutable references: %+v", references)
+	}
+}
+
+func TestExtractEncodedConstructorArgsWithDifferentMetadataHash(t *testing.T) {
+	creationData := "6000aabb00021234"
+	compiledCreationBytecode := "6000ccdd0002"
+
+	got := extractEncodedConstructorArgs(creationData, compiledCreationBytecode)
+	if got != "0x1234" {
+		t.Fatalf("expected constructor args 0x1234, got %q", got)
 	}
 }
