@@ -127,7 +127,7 @@
   },
   "222222": {
     "rpc": [
-      "https://rpc.hydradx.cloud/"
+      "https://hydration-rpc.n.dwellir.com/"
     ],
     "contractFetchAddress": "https://hydration.api.subscan.io/api/scan/evm/contract",
     "subscan": true
