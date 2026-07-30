@@ -107,6 +107,41 @@ func TestCompareBytecodesUsesProvidedConstructorArgs(t *testing.T) {
 	}
 }
 
+func TestCompareBytecodesSkipsLibraryPlaceholderBeyondChainBytecode(t *testing.T) {
+	req := &VerificationRequest{}
+	compiled := &SolcOutput{
+		Contracts: map[string]map[string]SolcContract{
+			"Other.sol": {
+				"Other": {
+					Evm: SolcEVMOutput{
+						DeployedBytecode: SolcBytecode{
+							Object: "6000__$1234567890123456789012345678901234$__",
+						},
+					},
+				},
+			},
+			"Target.sol": {
+				"Target": {
+					Evm: SolcEVMOutput{
+						DeployedBytecode: SolcBytecode{Object: "6000"},
+					},
+				},
+			},
+		},
+	}
+
+	match, err := req.compareBytecodes(context.Background(), "0x6000", compiled)
+	if err != nil {
+		t.Fatalf("compareBytecodes returned error: %v", err)
+	}
+	if match == nil || match.Status != perfect {
+		t.Fatalf("expected perfect match, got %#v", match)
+	}
+	if compiled.CompileTarget != "Target.sol" || compiled.ContractName != "Target" {
+		t.Fatalf("expected Target.sol:Target, got %s:%s", compiled.CompileTarget, compiled.ContractName)
+	}
+}
+
 func TestCompareBytecodesMasksImmutableReferencesAndIgnoresMetadata(t *testing.T) {
 	req := &VerificationRequest{}
 	compiled := &SolcOutput{

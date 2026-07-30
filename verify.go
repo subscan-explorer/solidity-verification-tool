@@ -187,7 +187,7 @@ func addLibraryAddresses(template, real string) addLibraryAddressesResult {
 
 		// Ensure real has enough length at the current index
 		if index+placeholderLength > len(real) {
-			panic("real string length insufficient for placeholder")
+			return addLibraryAddressesResult{Replaced: replaced, LibraryMap: libraryMap}
 		}
 		address := real[index : index+placeholderLength]
 
