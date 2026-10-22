@@ -2,6 +2,8 @@ package util
 
 import (
 	"context"
+	"crypto/x509"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -45,5 +47,18 @@ func TestPostWithJson(t *testing.T) {
 	}
 	if !strings.Contains(string(resp), `{"response":"ok"}`) {
 		t.Errorf("expected response {\"response\":\"ok\"}, got %s", resp)
+	}
+}
+
+func TestPostWithJsonRejectsUntrustedTLSCertificate(t *testing.T) {
+	ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Error("request reached a server with an untrusted certificate")
+	}))
+	defer ts.Close()
+
+	_, err := PostWithJson(context.Background(), []byte(`{"key":"value"}`), ts.URL)
+	var unknownAuthority x509.UnknownAuthorityError
+	if !errors.As(err, &unknownAuthority) {
+		t.Fatalf("expected unknown certificate authority, got %v", err)
 	}
 }

@@ -14,6 +14,16 @@ bytecode.
 
 ## Installation
 
+Use Go 1.26.10, matching `go.mod`, CI, and `Dockerfile.local`. This includes the
+`crypto/x509` certificate verification fix in
+[GO-2026-6809](https://pkg.go.dev/vuln/GO-2026-6809). With gvm, select the
+toolchain before running Go commands:
+
+```sh
+source ~/.gvm/scripts/gvm
+gvm use go1.26.10
+```
+
 1. Clone the repository:
 ```sh
 git clone https://github.com/subscan-explorer/solidity-verification-tool.git
@@ -36,7 +46,7 @@ go mod tidy
 1. Start the server:
 
 ```sh
-go run main.go
+go run .
 ```
 
 2. Send a POST request to `/verify` with the contract metadata and compiler version.
@@ -64,6 +74,21 @@ Building Solidity contracts for PolkaVM requires installing extra dependencies. 
 ```sh
 go run . download # if will auto download latest resolc binary in static folder
 ```
+
+## Development
+
+```sh
+go test -mod=mod -v ./...
+go vet ./...
+make build
+```
+
+The compiler integration tests download amd64 solc binaries. ARM developers need
+an amd64 execution environment to run these tests.
+
+CI compiles `verification` with the Go version in `go.mod` before the production
+`Dockerfile` packages it. `Dockerfile.local` compiles the service inside its Go
+builder image. Updating the production Alpine base alone does not rebuild Go.
 
 ## License
 
